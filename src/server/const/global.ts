@@ -1,0 +1,8 @@
+// 这个模块存放全局常量。
+
+const TOKEN_COOKIE_NAME = "token"
+const TOKEN_COOKIE_MAX_AGE = 60 * 60 * 24 * 30
+const PHOTO_LIST_PAGE_SIZE = 100
+const SETTING_KEY = 'system-config'
+
+export { TOKEN_COOKIE_NAME, TOKEN_COOKIE_MAX_AGE, PHOTO_LIST_PAGE_SIZE, SETTING_KEY }

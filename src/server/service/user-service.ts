@@ -1,0 +1,315 @@
+import { hashPassword } from '@/server/lib/crypto';
+import { createId } from '@/server/lib/id';
+import { count, eq, inArray, sum } from 'drizzle-orm';
+import { userTab } from '@/server/entity/user';
+import { type UserAddBo, type UserSetAvatarBo, type UserSetBo, type UserPasswordBo, type UserToggleStatusBo } from '@/server/entity/bo/user';
+import { photoTab } from '@/server/entity/photo';
+import { type PageVo } from '@/server/entity/vo/common';
+import { type UserInfoVo, type UserVo } from '@/server/entity/vo/user';
+import { UserStatusEnum } from '@/server/enums/user-enum';
+import BizError from '@/server/error/biz-error';
+import { orm } from '@/server/infra/db';
+import { albumService } from '@/server/service/album-service';
+import { photoService } from '@/server/service/photo-service';
+import { storage } from '@/server/storage/storage';
+
+// 这个模块处理用户数据查询和写入相关业务。
+
+const userService = {
+
+  // 根据用户 id 查询用户基础信息。
+  async getById(userId: string): Promise<UserInfoVo | null> {
+    const [user] = await orm
+      .select({
+        userId: userTab.userId,
+        username: userTab.username,
+        avatar: userTab.avatar,
+        type: userTab.type
+      })
+      .from(userTab)
+      .where(eq(userTab.userId, userId))
+      .limit(1);
+
+    return user ?? null;
+  },
+
+  // 根据用户名查询用户基础信息。
+  async getByName(username: string): Promise<UserInfoVo> {
+    const name = username?.trim();
+
+    if (!name) {
+      throw new BizError('用户名不能为空');
+    }
+
+    const [user] = await orm
+      .select({
+        userId: userTab.userId,
+        username: userTab.username,
+        avatar: userTab.avatar,
+        type: userTab.type
+      })
+      .from(userTab)
+      .where(eq(userTab.username, name))
+      .limit(1);
+
+
+    return user;
+  },
+
+  // 设置当前用户头像，并返回最新用户基础信息。
+  async setAvatar(params: UserSetAvatarBo, userId: string): Promise<UserInfoVo> {
+
+    const [user] = await orm
+      .select({
+        userId: userTab.userId,
+        username: userTab.username,
+        avatar: userTab.avatar,
+        type: userTab.type
+      })
+      .from(userTab)
+      .where(eq(userTab.userId, userId))
+      .limit(1);
+
+    if (user?.avatar) {
+      await storage.delete(`profile/avatar/${user.avatar}`, 'local');
+    }
+
+    const avatarKey = `${createId()}.webp`;
+    const match = params.avatar.match(/^data:image\/webp;base64,(.+)$/);
+
+    if (!match?.[1]) {
+      throw new BizError('头像格式错误');
+    }
+
+    await storage.put([{
+      key: `profile/avatar/${avatarKey}`,
+      body: Buffer.from(match[1], 'base64'),
+      type: 'image/webp',
+    }], 'local');
+
+    await orm.update(userTab)
+      .set({
+        avatar: avatarKey
+      })
+      .where(eq(userTab.userId, userId));
+
+    return {
+      ...user,
+      avatar: avatarKey
+    };
+  },
+
+  // 根据头像 key 从存储读取头像文件。
+  async getAvatar(key?: string) {
+
+    if (!key) {
+      return null;
+    }
+
+    try {
+      return await storage.get(`profile/avatar/${key}`, 'local');
+    } catch {
+      return null;
+    }
+  },
+
+  // 查询全部用户，并统计每个用户的照片数量和已用容量。
+  async list(): Promise<PageVo<UserVo>> {
+    const userList = await orm
+      .select()
+      .from(userTab);
+
+    if (!userList.length) {
+      return { list: [], total: 0 };
+    }
+
+    const userIds = userList.map((user) => user.userId);
+
+    const photoStatList = await orm
+      .select({
+        userId: photoTab.userId,
+        photoTotal: count(photoTab.photoId),
+        usedCapacity: sum(photoTab.size)
+      })
+      .from(photoTab)
+      .where(inArray(photoTab.userId, userIds))
+      .groupBy(photoTab.userId);
+
+    const list = userList.map((user) => {
+      const photoStat = photoStatList.find((stat) => stat.userId === user.userId);
+      const { password: _password, salt: _salt, ...safeUser } = user;
+
+      return {
+        ...safeUser,
+        photoTotal: Number(photoStat?.photoTotal ?? 0),
+        usedCapacity: Number(photoStat?.usedCapacity ?? 0)
+      };
+    });
+
+    return { list, total: list.length };
+  },
+
+  // 添加用户，并把明文密码转换为带盐哈希后保存。
+  async add(params: UserAddBo): Promise<void> {
+    const username = params.username?.trim();
+
+    if (!username || !params.password?.trim()) {
+      throw new BizError('用户名和密码不能为空');
+    }
+
+    if (!params.type) {
+      throw new BizError('请选择用户类型');
+    }
+
+    const [user] = await orm.select().from(userTab).where(eq(userTab.username, username)).limit(1);
+
+    if (user) {
+      throw new BizError('用户名已存在');
+    }
+
+    const password = await hashPassword(params.password);
+    const userId = createId();
+    const now = new Date().toISOString();
+
+    await orm.insert(userTab).values({
+      userId,
+      username,
+      password: password.hash,
+      salt: password.salt,
+      type: params.type,
+      createTime: now,
+    });
+
+  },
+
+  // 修改用户信息。
+  async set(params: UserSetBo): Promise<void> {
+    const userId = params.userId?.trim();
+    const username = params.username?.trim();
+
+    if (!userId) {
+      throw new BizError('请选择用户');
+    }
+
+    if (!username) {
+      throw new BizError('用户名不能为空');
+    }
+
+    if (!params.type) {
+      throw new BizError('请选择用户类型');
+    }
+
+    const [user] = await orm
+      .select({
+        userId: userTab.userId
+      })
+      .from(userTab)
+      .where(eq(userTab.userId, userId))
+      .limit(1);
+
+    if (!user) {
+      throw new BizError('用户不存在');
+    }
+
+    const [existsUser] = await orm
+      .select({
+        userId: userTab.userId
+      })
+      .from(userTab)
+      .where(eq(userTab.username, username))
+      .limit(1);
+
+    if (existsUser && existsUser.userId !== userId) {
+      throw new BizError('用户名已存在');
+    }
+
+    const nextPassword = params.password?.trim();
+    const updateData: {
+      username: string;
+      type: number;
+      password?: string;
+      salt?: string;
+    } = {
+      username,
+      type: params.type,
+    };
+
+    if (nextPassword) {
+      const password = await hashPassword(nextPassword);
+      updateData.password = password.hash;
+      updateData.salt = password.salt;
+    }
+
+    await orm.update(userTab)
+      .set(updateData)
+      .where(eq(userTab.userId, userId));
+  },
+
+  // 修改当前登录用户密码，并重新生成盐和密码哈希。
+  async setUserPassword(params: UserPasswordBo, userId: string): Promise<void> {
+
+    if (!params.password?.trim()) {
+      throw new BizError('请输入密码');
+    }
+
+    const password = await hashPassword(params.password.trim());
+
+    await orm.update(userTab)
+      .set({
+        password: password.hash,
+        salt: password.salt
+      })
+      .where(eq(userTab.userId, userId));
+  },
+
+  // 切换指定用户的启用状态。
+  async toggleStatus(params: UserToggleStatusBo): Promise<void> {
+    if (!params.userId) {
+      throw new BizError('请选择用户');
+    }
+
+    const [user] = await orm
+      .select({
+        status: userTab.status
+      })
+      .from(userTab)
+      .where(eq(userTab.userId, params.userId))
+      .limit(1);
+
+    if (!user) {
+      throw new BizError('用户不存在');
+    }
+
+    await orm.update(userTab)
+      .set({
+        status: user.status === UserStatusEnum.DISABLE
+          ? UserStatusEnum.NORMAL
+          : UserStatusEnum.DISABLE
+      })
+      .where(eq(userTab.userId, params.userId));
+  },
+
+  // 删除指定用户及其关联相册，并把照片移入回收站。
+  async delete(deleteUserId: string): Promise<void> {
+
+    const [user] = await orm
+      .select({
+        avatar: userTab.avatar
+      })
+      .from(userTab)
+      .where(eq(userTab.userId, deleteUserId))
+      .limit(1);
+
+    if (user?.avatar) {
+      await storage.delete(`profile/avatar/${user.avatar}`, 'local');
+    }
+
+    await photoService.recycleByUserId(deleteUserId);
+    await albumService.deleteByUserId(deleteUserId);
+
+    await orm.delete(userTab)
+      .where(eq(userTab.userId, deleteUserId));
+  },
+}
+
+export { userService }
