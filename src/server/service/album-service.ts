@@ -106,7 +106,7 @@ const albumService = {
       albumId: createId(),
       name,
       userId,
-      sort: Date.now(),
+      sort: 0,
       createTime: now,
       updateTime: now,
     }).returning();

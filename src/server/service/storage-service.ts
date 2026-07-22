@@ -92,7 +92,7 @@ const storageService = {
       storageId: createId(),
       name,
       userId,
-      sort: Date.now()
+      sort: 0
     });
 
     await this.refreshStorageCache();

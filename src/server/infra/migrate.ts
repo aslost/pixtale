@@ -7,9 +7,9 @@ import { db } from '@/server/infra/db';
 
 // 系统设置默认值，仅用于建表种子数据。
 const settingDefaults: Setting = {
-  syncDelete: SettingSyncDeleteEnum.DISABLE,
-  clearLast: 0,
-  photoDedup: SettingPhotoDedupEnum.DISABLE
+  syncDelete: SettingSyncDeleteEnum.ENABLE,
+  clearLast: 7,
+  photoDedup: SettingPhotoDedupEnum.ENABLE
 };
 
 const createTableSqlList = [
