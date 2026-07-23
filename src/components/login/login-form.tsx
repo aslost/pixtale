@@ -1,6 +1,6 @@
 "use client"
 
-import { useState, type FormEvent, type KeyboardEvent } from "react"
+import { useEffect, useState, type FormEvent, type KeyboardEvent } from "react"
 import { LoaderCircle } from "lucide-react"
 import { cn } from "@/lib/utils"
 import { useApp } from "@/app/provider"
@@ -30,10 +30,26 @@ export function LoginForm({
   ...props
 }: LoginFormProps) {
   const { title } = useApp()
+  // form 保存登录表单的用户名和密码。
   const [form, setForm] = useState<LoginBo>({
     username: "",
     password: "",
   })
+
+  // 若配置了演示账号，则预填到登录表单。
+  useEffect(() => {
+    const username = process.env.NEXT_PUBLIC_DEMO_USERNAME
+    const password = process.env.NEXT_PUBLIC_DEMO_PASSWORD
+
+    if (!username && !password) {
+      return
+    }
+
+    setForm((prev) => ({
+      username: username || prev.username,
+      password: password || prev.password,
+    }))
+  }, [])
 
   // 更新登录表单字段。
   function updateField(field: keyof LoginBo, value: string) {
