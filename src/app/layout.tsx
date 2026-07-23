@@ -3,7 +3,7 @@ import { Geist } from "next/font/google"
 import { type Metadata } from "next"
 
 import { Provider, type Theme } from "@/app/provider"
-import { getUserId } from "@/lib/cookie"
+import { getLoginInfo } from "@/lib/cookie"
 import { userService } from "@/server/service/user-service"
 import "./globals.css"
 
@@ -36,7 +36,7 @@ export default async function RootLayout({ children }: RootLayoutProps) {
   const cookieStore = await cookies()
   const defaultTheme: Theme = cookieStore.get(THEME_COOKIE_NAME)?.value === "light" ? "light" : "dark"
   const defaultSidebarOpen = cookieStore.get(SIDEBAR_COOKIE_NAME)?.value === "true"
-  const userId = await getUserId(cookieStore.toString())
+  const { userId } = await getLoginInfo(cookieStore.toString())
   const userInfo = userId ? await userService.getById(userId) : null
   const title = process.env.TITLE || ""
 

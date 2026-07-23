@@ -1,10 +1,12 @@
 import type { Context, Next } from 'hono';
-import { deleteCookie, getCookie } from 'hono/cookie';
+import { deleteCookie } from 'hono/cookie';
 import { TOKEN_COOKIE_NAME } from '@/server/const/global';
+import { AUTH_CACHE_KEY } from '@/server/const/cache';
 import BizError from '@/server/error/biz-error';
-import { verifyLoginToken } from '@/server/lib/jwt';
+import { getLoginInfo } from '@/lib/cookie';
 import { setUserId } from '@/server/security/context';
-import { userService } from '@/server/service/user-service';
+import { cache } from '@/server/infra/cache';
+import { type AuthInfo } from '@/server/entity/vo/auth';
 import { UserTypeEnum } from '@/server/enums/user-enum';
 
 // 这个模块提供全局接口鉴权中间件。
@@ -41,31 +43,35 @@ function clearLoginCookies(c: Context) {
   });
 }
 
-// 校验 JWT，通过后把 userId 写入上下文；公开路径直接放行。
+// 校验登录信息与会话 uuid，通过后写入上下文；公开路径直接放行。
 async function security(c: Context, next: Next) {
 
   const path = c.req.path.replace(/^\/api/, '');
 
-  if (path.startsWith('/login')) {
+  if (path.startsWith('/login') || path.startsWith('/logout')) {
     return next();
   }
 
-  const payload = await verifyLoginToken(getCookie(c, TOKEN_COOKIE_NAME));
+  const { userId, uuid } = await getLoginInfo(c.req.header('cookie') ?? null);
 
-  if (!payload?.userId) {
+  if (!userId || !uuid) {
     clearLoginCookies(c);
     throw new BizError('身份认证失败', 401);
   }
 
-  setUserId(payload.userId);
+  // 从缓存读取登录信息，并确认当前 uuid 仍有效。
+  const authInfo = await cache.get<AuthInfo>(AUTH_CACHE_KEY + userId);
 
-  if (isSystemPath(path)) {
-    const user = await userService.getById(payload.userId);
-
-    if (user?.type === UserTypeEnum.NORMAL) {
-      throw new BizError('权限不足', 403);
-    }
+  if (!authInfo || !authInfo.uuidList.includes(uuid)) {
+    clearLoginCookies(c);
+    throw new BizError('身份认证失败', 401);
   }
+
+  if (isSystemPath(path) && authInfo.type === UserTypeEnum.NORMAL) {
+    throw new BizError('权限不足', 403);
+  }
+
+  setUserId(authInfo.userId);
 
   return next();
 }

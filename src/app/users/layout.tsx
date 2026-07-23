@@ -1,6 +1,6 @@
 import { cookies } from "next/headers"
 import { UserProvider } from "@/app/users/provider"
-import { getUserId } from "@/lib/cookie"
+import { getLoginInfo } from "@/lib/cookie"
 import { userService } from "@/server/service/user-service"
 
 interface UserLayoutProps {
@@ -10,7 +10,7 @@ interface UserLayoutProps {
 // 服务端查询用户列表，并提供给 /user 页面初始化表格。
 export default async function UserLayout({ children }: UserLayoutProps) {
   const cookieStore = await cookies()
-  const userId = await getUserId(cookieStore.toString())
+  const { userId } = await getLoginInfo(cookieStore.toString())
 
   if (!userId) {
     return null

@@ -1,6 +1,6 @@
 import { cookies } from "next/headers"
 import { FavoriteProvider } from "@/app/favorites/provider"
-import { getUserId } from "@/lib/cookie"
+import { getLoginInfo } from "@/lib/cookie"
 import { PHOTO_LIST_PAGE_SIZE } from "@/server/const/global"
 import { photoService } from "@/server/service/photo-service"
 import { PhotoFavoriteEnum } from "@/server/enums/photo-enum"
@@ -12,7 +12,7 @@ interface FavoriteLayoutProps {
 // 服务端查询收藏照片第一页，并提供给收藏页初始化列表。
 export default async function FavoriteLayout({ children }: FavoriteLayoutProps) {
   const cookieStore = await cookies()
-  const userId = await getUserId(cookieStore.toString())
+  const { userId } = await getLoginInfo(cookieStore.toString())
 
   if (!userId) {
     return null

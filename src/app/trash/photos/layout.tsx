@@ -1,6 +1,6 @@
 import { cookies } from "next/headers"
 import { TrashPhotoProvider } from "@/app/trash/photos/provider"
-import { getUserId } from "@/lib/cookie"
+import { getLoginInfo } from "@/lib/cookie"
 import { PHOTO_LIST_PAGE_SIZE } from "@/server/const/global"
 import { photoService } from "@/server/service/photo-service"
 import { PhotoStatusEnum } from "@/server/enums/photo-enum"
@@ -12,7 +12,7 @@ interface TrashPhotoLayoutProps {
 // 服务端查询回收站照片第一页，并提供给回收站照片页初始化列表。
 export default async function TrashPhotoLayout({ children }: TrashPhotoLayoutProps) {
   const cookieStore = await cookies()
-  const userId = await getUserId(cookieStore.toString())
+  const { userId } = await getLoginInfo(cookieStore.toString())
 
   if (!userId) {
     return null

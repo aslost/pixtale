@@ -9,6 +9,8 @@ import { type UserInfoVo, type UserVo } from '@/server/entity/vo/user';
 import { UserStatusEnum } from '@/server/enums/user-enum';
 import BizError from '@/server/error/biz-error';
 import { orm } from '@/server/infra/db';
+import { cache } from '@/server/infra/cache';
+import { AUTH_CACHE_KEY } from '@/server/const/cache';
 import { albumService } from '@/server/service/album-service';
 import { photoService } from '@/server/service/photo-service';
 import { storage } from '@/server/storage/storage';
@@ -287,6 +289,9 @@ const userService = {
           : UserStatusEnum.DISABLE
       })
       .where(eq(userTab.userId, params.userId));
+
+    // 切换状态后清除登录缓存。
+    await cache.delete(AUTH_CACHE_KEY + params.userId);
   },
 
   // 删除指定用户及其关联相册，并把照片移入回收站。
@@ -309,6 +314,9 @@ const userService = {
 
     await orm.delete(userTab)
       .where(eq(userTab.userId, deleteUserId));
+
+    // 删除用户后清除登录缓存。
+    await cache.delete(AUTH_CACHE_KEY + deleteUserId);
   },
 }
 

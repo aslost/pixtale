@@ -1,6 +1,6 @@
 import { cookies } from "next/headers"
 import { AlbumPhotoProvider } from "@/app/albums/[albumId]/provider"
-import { getUserId } from "@/lib/cookie"
+import { getLoginInfo } from "@/lib/cookie"
 import { PHOTO_LIST_PAGE_SIZE } from "@/server/const/global"
 import { photoService } from "@/server/service/photo-service"
 
@@ -15,7 +15,7 @@ interface AlbumPhotoLayoutProps {
 export default async function AlbumPhotoLayout({ children, params }: AlbumPhotoLayoutProps) {
   const { albumId } = await params
   const cookieStore = await cookies()
-  const userId = await getUserId(cookieStore.toString())
+  const { userId } = await getLoginInfo(cookieStore.toString())
 
   if (!userId) {
     return null

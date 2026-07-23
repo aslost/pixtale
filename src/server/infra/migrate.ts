@@ -103,6 +103,12 @@ const createTableSqlList = [
     )`,
   `INSERT OR IGNORE INTO setting (key, value)
         VALUES ('${SETTING_KEY}', '${JSON.stringify(settingDefaults)}')`,
+
+  `CREATE TABLE IF NOT EXISTS cache (
+        key TEXT PRIMARY KEY,
+        value TEXT NOT NULL,
+        expire_time INTEGER
+    )`,
 ];
 
 // 执行全部建表语句，已存在的表会自动跳过。

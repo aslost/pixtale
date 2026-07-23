@@ -5,6 +5,7 @@ import { TOKEN_COOKIE_MAX_AGE, TOKEN_COOKIE_NAME } from "@/server/const/global";
 import result from "@/server/model/result";
 import { type LoginBo } from "@/server/entity/bo/login";
 import { type LoginVo } from "@/server/entity/vo/login";
+import { getLoginInfo } from "@/lib/cookie";
 import { loginService } from "@/server/service/login-service";
 
 // 这个模块注册登录相关接口。
@@ -25,8 +26,12 @@ app.post('/login', async (c: Context) => {
   return c.json(result.ok(data));
 })
 
-// 用户退出登录，清除登录相关 Cookie。
+// 用户退出登录，清除当前会话并删除 Cookie。
 app.post('/logout', async (c: Context) => {
+
+  const { userId, uuid } = await getLoginInfo(c.req.header('cookie'));
+  await loginService.logout(userId, uuid);
+
   deleteCookie(c, TOKEN_COOKIE_NAME, {
     path: '/',
   });

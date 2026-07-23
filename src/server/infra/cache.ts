@@ -1,71 +1,78 @@
-// 这个模块封装进程内缓存读写。
+import { eq } from 'drizzle-orm'
+import { cacheTab } from '@/server/entity/cache'
+import { orm } from '@/server/infra/db'
+
+// 这个模块封装缓存读写，当前由 dbCache 写入 SQLite cache 表。
 
 type CacheSetOptions = {
   // ttl 缓存过期时间，单位秒。
-  ttl?: number;
-};
-
-type MemoryCacheItem = {
-  value: string;
-  expireAt?: number;
-};
-
-// memoryCache 保存进程内缓存。
-const memoryCache = new Map<string, MemoryCacheItem>();
-
-// 把任意数据序列化成字符串。
-function toCacheString(data: unknown) {
-  return JSON.stringify(data);
+  ttl?: number
 }
 
-// 把缓存字符串还原成原始数据。
-function fromCacheString<T>(value: string): T {
-  return JSON.parse(value) as T;
-}
+// SQLite 缓存实现。
+const dbCache = {
 
-// 写入进程内缓存。
-function memorySet(key: string, value: string, ttl?: number) {
-  memoryCache.set(key, {
-    value,
-    expireAt: ttl ? Date.now() + ttl * 1000 : undefined,
-  });
-}
+  // 写入缓存，同 key 则覆盖。
+  async set(key: string, data: object, options?: CacheSetOptions): Promise<void> {
+    const value = JSON.stringify(data)
+    const expireTime = options?.ttl
+      ? Math.floor(Date.now() / 1000) + options.ttl
+      : null
 
-// 读取进程内缓存，过期后自动删除。
-function memoryGet(key: string) {
-  const item = memoryCache.get(key);
+    await orm.insert(cacheTab).values({
+      key,
+      value,
+      expireTime,
+    }).onConflictDoUpdate({
+      target: cacheTab.key,
+      set: {
+        value,
+        expireTime,
+      },
+    })
+  },
 
-  if (!item) {
-    return null;
-  }
+  // 读取缓存，过期则删除并返回 null。
+  async get<T>(key: string): Promise<T | null> {
+    const [row] = await orm
+      .select()
+      .from(cacheTab)
+      .where(eq(cacheTab.key, key))
+      .limit(1)
 
-  if (item.expireAt && Date.now() >= item.expireAt) {
-    memoryCache.delete(key);
-    return null;
-  }
+    if (!row) {
+      return null
+    }
 
-  return item.value;
-}
+    if (row.expireTime != null && row.expireTime <= Math.floor(Date.now() / 1000)) {
+      await dbCache.delete(key)
+      return null
+    }
 
-// 写入缓存。
-async function set(key: string, data: unknown, options?: CacheSetOptions): Promise<void> {
-  memorySet(key, toCacheString(data), options?.ttl);
-}
+    return JSON.parse(row.value) as T
+  },
 
-// 读取缓存。
-async function get<T>(key: string): Promise<T | null> {
-  const value = memoryGet(key);
-
-  if (value == null) {
-    return null;
-  }
-
-  return fromCacheString<T>(value);
+  // 删除缓存。
+  async delete(key: string): Promise<void> {
+    await orm.delete(cacheTab).where(eq(cacheTab.key, key))
+  },
 }
 
 const cache = {
-  set,
-  get,
-};
+  // 写入缓存。
+  async set(key: string, data: object, options?: CacheSetOptions): Promise<void> {
+    return dbCache.set(key, data, options)
+  },
 
-export { cache, type CacheSetOptions };
+  // 读取缓存。
+  async get<T>(key: string): Promise<T | null> {
+    return dbCache.get<T>(key)
+  },
+
+  // 删除缓存。
+  async delete(key: string): Promise<void> {
+    return dbCache.delete(key)
+  },
+}
+
+export { cache, type CacheSetOptions }
