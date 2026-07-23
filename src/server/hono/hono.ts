@@ -26,6 +26,10 @@ app.onError((err, c) => {
     return c.json(result.fail(err.message, err.code));
   }
 
+  if (err.message.includes('readonly database')) {
+    return c.json(result.fail("当前为只读环境"));
+  }
+
   console.error(err);
   return c.json(result.fail(err.message));
 });
