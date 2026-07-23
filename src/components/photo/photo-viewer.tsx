@@ -808,7 +808,11 @@ export function PhotoViewer({ open, index, photos, onBack, onBrowserBack }: Phot
     <Lightbox
       className={lightboxClassName}
       open={open}
-      close={closeViewer}
+      close={() => {
+        closeViewer()
+        // 关闭时重置缩放
+        setZoomLevel(1)
+      }}
       index={index}
       slides={slides}
       portal={{
