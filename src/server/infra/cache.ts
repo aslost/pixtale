@@ -1,4 +1,4 @@
-import { eq } from 'drizzle-orm'
+import { and, eq, isNotNull, lte } from 'drizzle-orm'
 import { cacheTab } from '@/server/entity/cache'
 import { orm } from '@/server/infra/db'
 
@@ -56,6 +56,16 @@ const dbCache = {
   async delete(key: string): Promise<void> {
     await orm.delete(cacheTab).where(eq(cacheTab.key, key))
   },
+
+  // 删除所有已过期的缓存。
+  async clearExpired(): Promise<void> {
+    const now = Math.floor(Date.now() / 1000)
+
+    await orm.delete(cacheTab).where(and(
+      isNotNull(cacheTab.expireTime),
+      lte(cacheTab.expireTime, now),
+    ))
+  },
 }
 
 const cache = {
@@ -72,6 +82,11 @@ const cache = {
   // 删除缓存。
   async delete(key: string): Promise<void> {
     return dbCache.delete(key)
+  },
+
+  // 删除所有已过期的缓存。
+  async clearExpired(): Promise<void> {
+    return dbCache.clearExpired()
   },
 }
 
