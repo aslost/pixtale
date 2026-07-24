@@ -252,7 +252,7 @@ export function PhotoUploadDialog() {
 
   // 上传单张照片，并按结果刷新当前照片状态。
   async function uploadPhoto(preview: UploadPreview) {
-    const currentStorageId = uploadStorageIdRef.current
+    const currentStorageId = uploadStorageIdRef.current!
 
     setPreviews(previewsRef.current.map((p) => (
       p.id === preview.id ? { ...p, progress: 0, status: "uploading" } : p
@@ -261,14 +261,6 @@ export function PhotoUploadDialog() {
     const item = previewsRef.current.find((p) => p.id === preview.id) ?? preview
 
     try {
-      if (!currentStorageId) {
-        toast.error("无效存储")
-        setPreviews(previewsRef.current.map((p) => (
-          p.id === item.id ? { ...p, progress: 100, status: "failed" } : p
-        )))
-        return
-      }
-
       if (pausedRef.current) {
         setPreviews(previewsRef.current.map((p) => (
           p.id === item.id ? { ...p, progress: 100, status: "new" } : p
@@ -365,6 +357,12 @@ export function PhotoUploadDialog() {
 
   // 上传弹窗内待处理的照片，成功后通知父页面。
   function startUpload() {
+
+    if (!selectedStorageId && previewsRef.current.length > 0) {
+      toast.error("无效存储")
+      return
+    }
+
     pausedRef.current = false
     uploadStorageIdRef.current = selectedStorageId
     const count = enqueueUploadItems()
