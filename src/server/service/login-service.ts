@@ -1,14 +1,13 @@
 import { orm } from '@/server/infra/db'
 import { userTab } from "@/server/entity/user";
-import { count, eq } from "drizzle-orm";
+import { eq } from "drizzle-orm";
 import BizError from "@/server/error/biz-error";
 import { verifyPassword } from '@/server/lib/crypto';
 import { createId } from '@/server/lib/id';
 import { createLoginToken } from '@/server/lib/jwt';
 import { type LoginBo } from '@/server/entity/bo/login';
 import { type AuthInfo } from '@/server/entity/vo/auth';
-import { UserStatusEnum, UserTypeEnum } from '@/server/enums/user-enum';
-import { userService } from '@/server/service/user-service';
+import { UserStatusEnum } from '@/server/enums/user-enum';
 import { cache } from '@/server/infra/cache';
 import { AUTH_CACHE_TTL } from '@/server/const/global';
 import { AUTH_CACHE_KEY } from '@/server/const/cache';
@@ -44,13 +43,6 @@ const loginService = {
     const [user] = await orm.select().from(userTab).where(eq(userTab.username, params.username)).limit(1);
 
     if (!user) {
-
-      const token = await this.initFirstUserLogin(params);
-
-      if (token) {
-        return token;
-      }
-
       throw new BizError("用户名或密码错误");
     }
 
@@ -62,40 +54,6 @@ const loginService = {
 
     if (!isValidPassword) {
       throw new BizError("用户名或密码错误");
-    }
-
-    const uuid = await this.saveAuthInfo(user);
-    return createLoginToken(user.userId, uuid);
-  },
-
-  // 首次启动且用户表为空时，用当前登录信息创建管理员并返回 token。
-  async initFirstUserLogin(params: LoginBo): Promise<string | null> {
-
-    const [stat] = await orm
-      .select({ total: count() })
-      .from(userTab);
-
-    if (Number(stat?.total ?? 0) !== 0) {
-      return null;
-    }
-
-    const username = params.username.trim();
-    const password = params.password.trim();
-
-    await userService.add({
-      username,
-      password,
-      type: UserTypeEnum.ADMIN,
-    });
-
-    const [user] = await orm
-      .select()
-      .from(userTab)
-      .where(eq(userTab.username, username))
-      .limit(1);
-
-    if (!user) {
-      throw new BizError('Failed to initialize user');
     }
 
     const uuid = await this.saveAuthInfo(user);

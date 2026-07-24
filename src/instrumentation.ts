@@ -9,6 +9,9 @@ export async function register() {
   const { migrate } = await import('@/server/infra/migrate');
   await migrate();
 
+  const { userService } = await import('@/server/service/user-service');
+  await userService.init();
+
   const { startTasks } = await import('@/server/task');
   startTasks();
 }

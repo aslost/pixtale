@@ -7,7 +7,7 @@ import { photoTab } from '@/server/entity/photo';
 import { type PageVo } from '@/server/entity/vo/common';
 import { type UserInfoVo, type UserVo } from '@/server/entity/vo/user';
 import { type AuthInfo } from '@/server/entity/vo/auth';
-import { UserStatusEnum } from '@/server/enums/user-enum';
+import { UserStatusEnum, UserTypeEnum } from '@/server/enums/user-enum';
 import BizError from '@/server/error/biz-error';
 import { orm } from '@/server/infra/db';
 import { cache } from '@/server/infra/cache';
@@ -20,6 +20,36 @@ import { storage } from '@/server/storage/storage';
 // 这个模块处理用户数据查询和写入相关业务。
 
 const userService = {
+
+  // 根据环境变量 ADMIN、PASSWORD 初始化管理员，不存在则创建，已存在则跳过。
+  async init(): Promise<void> {
+    const username = process.env.ADMIN?.trim();
+    const password = process.env.PASSWORD?.trim();
+
+    if (!username || !password) {
+      console.warn('ADMIN or PASSWORD is not set, skip creating');
+      return;
+    }
+
+    const [user] = await orm
+      .select({
+        userId: userTab.userId,
+      })
+      .from(userTab)
+      .where(eq(userTab.username, username))
+      .limit(1);
+
+    if (user) {
+      console.warn('ADMIN user already exists, skip creating');
+      return;
+    }
+
+    await this.add({
+      username,
+      password,
+      type: UserTypeEnum.ADMIN,
+    });
+  },
 
   // 根据用户 id 查询用户基础信息。
   async getById(userId: string): Promise<UserInfoVo | null> {
