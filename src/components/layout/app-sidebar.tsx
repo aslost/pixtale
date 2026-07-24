@@ -15,7 +15,7 @@ import {
   SidebarHeader,
   SidebarRail,
 } from "@/components/ui/sidebar"
-import { GalleryVerticalEndIcon, MonitorCog, Image, Heart, Trash2, FolderOpen, Database, User, Settings } from "lucide-react"
+import { Library, MonitorCog, Image, Heart, Trash2, FolderOpen, Database, User, Settings } from "lucide-react"
 
 // This is sample data.
 const data = {
@@ -28,7 +28,7 @@ const data = {
     {
       name: "",
       logo: (
-        <GalleryVerticalEndIcon />
+        <Library />
       ),
     },
     {
