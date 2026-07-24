@@ -5,7 +5,7 @@ import { storageService } from '@/server/service/storage-service';
 import '@/server/storage/local-storage';
 import '@/server/storage/s3-storage';
 import { resolveStorageStrategy } from '@/server/storage/storage-registry';
-import { type StorageBody, type StorageStrategy, type StorageUploadBody } from '@/server/storage/storage-types';
+import { type StorageObject, type StorageStrategy, type StorageUploadObject } from '@/server/storage/storage-types';
 
 // 这个模块按策略选择存储实现。
 
@@ -46,14 +46,14 @@ function createStorageStrategy(storage: Storage, skipInvalid = false): StorageSt
 const storage = {
 
   // 根据存储 id 查询配置、选择策略并保存多个文件。
-  async put(files: StorageUploadBody[], storageId: string): Promise<void> {
+  async put(files: StorageUploadObject[], storageId: string): Promise<void> {
     const fileStorage = await getStorage(storageId);
     assertStorageEnabled(fileStorage);
     return createStorageStrategy(fileStorage)!.put(files, fileStorage);
   },
 
   // 根据存储 id 查询配置、选择策略并读取文件。
-  async get(key: string, storageId: string): Promise<StorageBody> {
+  async get(key: string, storageId: string): Promise<StorageObject> {
     const fileStorage = await getStorage(storageId);
     return createStorageStrategy(fileStorage)!.get(key, fileStorage);
   },
@@ -73,4 +73,4 @@ const storage = {
 
 export { storage };
 export { registerStorageStrategy } from '@/server/storage/storage-registry';
-export type { ReadBody, StorageBody, StorageStrategy, StorageUploadBody } from '@/server/storage/storage-types';
+export type { ReadBody, StorageObject, StorageStrategy, StorageUploadObject } from '@/server/storage/storage-types';

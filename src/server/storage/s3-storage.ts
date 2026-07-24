@@ -1,5 +1,5 @@
 import { DeleteObjectsCommand, GetObjectCommand, PutObjectCommand, type PutObjectCommandInput, S3Client } from '@aws-sdk/client-s3';
-import { type ReadBody, type StorageBody, type StorageStrategy, type StorageUploadBody } from '@/server/storage/storage-types';
+import { type ReadBody, type StorageObject, type StorageStrategy, type StorageUploadObject } from '@/server/storage/storage-types';
 import { registerStorageStrategy } from '@/server/storage/storage-registry';
 import { type Storage } from '@/server/entity/storage';
 import { StorageTypeEnum } from '@/server/enums/storage-enum';
@@ -62,7 +62,7 @@ class S3StorageStrategy implements StorageStrategy {
   }
 
   // 保存多个文件到 S3。
-  async put(files: StorageUploadBody[], storage: Storage): Promise<void> {
+  async put(files: StorageUploadObject[], storage: Storage): Promise<void> {
     const client = this.createClient(storage);
     const bucket = storage.bucket?.trim();
 
@@ -84,7 +84,7 @@ class S3StorageStrategy implements StorageStrategy {
   }
 
   // 从 S3 读取文件并转成响应 body。
-  async get(key: string, storage: Storage): Promise<StorageBody> {
+  async get(key: string, storage: Storage): Promise<StorageObject> {
     const client = this.createClient(storage);
     const bucket = storage.bucket?.trim();
 

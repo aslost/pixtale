@@ -69,19 +69,19 @@ file.get('*', async (c: Context, next: Next) => {
     return next();
   }
 
-  const body = await storage.get(photoFile.key, photoFile.storageId);
+  const obj = await storage.get(photoFile.key, photoFile.storageId);
   const disposition = getDisposition(photoFile.type, photoFile.name);
   const headers: Record<string, string> = {
     'Content-Type': photoFile.fileType,
     'Cache-Control': 'private, max-age=604800',
-    'Content-Length': String(body.size)
+    'Content-Length': String(obj.size)
   };
 
   if (disposition) {
     headers['Content-Disposition'] = disposition;
   }
 
-  return c.body(body.body, 200, headers);
+  return c.body(obj.body, 200, headers);
 })
 
 export { file };

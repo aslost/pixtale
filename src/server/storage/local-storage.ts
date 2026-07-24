@@ -1,7 +1,7 @@
 import { createReadStream } from 'node:fs';
 import fs from 'node:fs/promises';
 import path from 'node:path';
-import { type StorageBody, type StorageStrategy, type StorageUploadBody } from '@/server/storage/storage-types';
+import { type StorageObject, type StorageStrategy, type StorageUploadObject } from '@/server/storage/storage-types';
 import { registerStorageStrategy } from '@/server/storage/storage-registry';
 import { type Storage } from '@/server/entity/storage';
 import { StorageTypeEnum } from '@/server/enums/storage-enum';
@@ -25,7 +25,7 @@ class LocalStorageStrategy implements StorageStrategy {
   }
 
   // 保存多个文件到本地。
-  async put(files: StorageUploadBody[], storage: Storage): Promise<void> {
+  async put(files: StorageUploadObject[], storage: Storage): Promise<void> {
 
     void storage;
 
@@ -37,7 +37,7 @@ class LocalStorageStrategy implements StorageStrategy {
   }
 
   // 从本地读取文件并以流的方式返回。
-  async get(key: string, storage: Storage): Promise<StorageBody> {
+  async get(key: string, storage: Storage): Promise<StorageObject> {
     void storage;
     const filePath = this.getLocalPath(key);
     const { size } = await fs.stat(filePath);
