@@ -4,16 +4,14 @@ FROM node:22-alpine AS builder
 WORKDIR /app
 
 # better-sqlite3、sharp 原生模块编译依赖
-RUN sed -i 's/dl-cdn.alpinelinux.org/mirrors.aliyun.com/g' /etc/apk/repositories \
-    && apk add --no-cache python3 make g++
+RUN apk add --no-cache python3 make g++
 
 RUN corepack enable && corepack prepare pnpm@11.6.0 --activate
 
 COPY package.json pnpm-lock.yaml pnpm-workspace.yaml ./
 COPY patches ./patches
 
-RUN pnpm config set registry https://registry.npmmirror.com \
-    && pnpm install --frozen-lockfile
+RUN pnpm install --frozen-lockfile
 
 COPY . .
 
