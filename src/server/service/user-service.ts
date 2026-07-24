@@ -6,11 +6,13 @@ import { type UserAddBo, type UserSetAvatarBo, type UserSetBo, type UserPassword
 import { photoTab } from '@/server/entity/photo';
 import { type PageVo } from '@/server/entity/vo/common';
 import { type UserInfoVo, type UserVo } from '@/server/entity/vo/user';
+import { type AuthInfo } from '@/server/entity/vo/auth';
 import { UserStatusEnum } from '@/server/enums/user-enum';
 import BizError from '@/server/error/biz-error';
 import { orm } from '@/server/infra/db';
 import { cache } from '@/server/infra/cache';
 import { AUTH_CACHE_KEY } from '@/server/const/cache';
+import { AUTH_CACHE_TTL } from '@/server/const/global';
 import { albumService } from '@/server/service/album-service';
 import { photoService } from '@/server/service/photo-service';
 import { storage } from '@/server/storage/storage';
@@ -245,6 +247,16 @@ const userService = {
     await orm.update(userTab)
       .set(updateData)
       .where(eq(userTab.userId, userId));
+
+    // 若存在登录缓存，同步更新其中的用户类型。
+    const authInfo = await cache.get<AuthInfo>(AUTH_CACHE_KEY + userId);
+
+    if (authInfo) {
+      await cache.set(AUTH_CACHE_KEY + userId, {
+        ...authInfo,
+        type: params.type,
+      }, { ttl: AUTH_CACHE_TTL });
+    }
   },
 
   // 修改当前登录用户密码，并重新生成盐和密码哈希。
