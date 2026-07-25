@@ -57,7 +57,7 @@ function formatMegapixels(width: number | null, height: number | null) {
     return null
   }
 
-  return `${(width * height / 1_000_000).toFixed(2)} MP`
+  return `${(width * height / 1_000_000).toFixed(1)} MP`
 }
 
 // 渲染单行照片信息，label 在左，value 在右；无值时不显示。
@@ -132,7 +132,7 @@ export function PhotoInfoSidebar({ photo, onClose }: PhotoInfoSidebarProps) {
   const shootingParams = photo ? getPhotoShootingParams(photo.exif) : []
 
   return (
-    <aside className="fixed top-0 right-0 z-[41] flex h-full w-full flex-col overflow-y-auto bg-transparent backdrop-blur-xl text-white shadow-photo-sidebar md:w-80 md:shrink-0">
+    <aside className="fixed top-0 right-0 z-[41] flex h-full w-full flex-col overflow-y-auto bg-transparent backdrop-blur-xl text-white shadow-photo-sidebar md:w-80 md:shrink-0" onPointerDown={(event) => event.stopPropagation()}>
       {onClose && <SidebarCloseButton onClose={onClose} />}
       {photo && (
         <div className="text-left">

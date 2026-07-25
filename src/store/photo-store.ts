@@ -31,7 +31,7 @@ interface PhotoState {
 const usePhotoStore = create<PhotoState>()(persist((set, get) => ({
   uploadOpen: false,
   uploadAlbumId: null,
-  infoOpen: false,
+  infoOpen: true,
   uploadedPhotos: [],
   photoCache: new Map(),
 
