@@ -341,7 +341,7 @@ const photoService = {
     await orm.update(photoTab)
       .set({
         status: PhotoStatusEnum.DELETE,
-        recycleTime: new Date().toISOString()
+        recycleTime: new Date(0).toISOString()
       })
       .where(eq(photoTab.userId, userId));
   },
@@ -439,10 +439,6 @@ const photoService = {
   async clearExpired(): Promise<void> {
 
     const setting = await settingService.get();
-
-    if (!setting.clearLast) {
-      return;
-    }
 
     const syncDelete = setting.syncDelete === SettingSyncDeleteEnum.ENABLE;
     const expireTime = new Date(Date.now() - setting.clearLast * 24 * 60 * 60 * 1000).toISOString();

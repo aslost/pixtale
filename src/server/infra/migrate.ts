@@ -54,6 +54,8 @@ const createTableSqlList = [
     )`,
   `CREATE INDEX IF NOT EXISTS idx_photo_user_status_taken_time
         ON photo (user_id, status, taken_time)`,
+  `CREATE INDEX IF NOT EXISTS idx_photo_status_recycle_time
+        ON photo (status, recycle_time)`,
 
   `CREATE TABLE IF NOT EXISTS file (
         file_id TEXT PRIMARY KEY NOT NULL,
