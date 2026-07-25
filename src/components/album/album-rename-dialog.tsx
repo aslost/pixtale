@@ -39,7 +39,7 @@ export function AlbumRenameDialog({ open, name, onOpenChange, onNameConfirm }: A
     <Dialog
       open={open}
       onOpenChange={onOpenChange}
-      title="修改名字"
+      title="修改名称"
       className="w-full"
       showCloseButton={false}
       onConfirm={submitName}

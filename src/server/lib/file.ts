@@ -32,8 +32,11 @@ function formatFileTimestamp(date = new Date()) {
 
 // 根据原文件名生成 Content-Disposition。
 function buildContentDisposition(name: string) {
-  const asciiName = name.replace(/["\\]/g, '_').replace(/[^\x20-\x7E]/g, '_') || 'download';
-  return `inline; filename="${asciiName}"; filename*=UTF-8''${encodeURIComponent(name)}`;
+  const encodedName = encodeURIComponent(name)
+    .replace(/[!'()*]/g, (char) =>
+      `%${char.charCodeAt(0).toString(16).toUpperCase()}`
+    );
+  return `inline; filename*=UTF-8''${encodedName}`;
 }
 
 export { buildContentDisposition, formatFileTimestamp, splitFileName };

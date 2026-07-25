@@ -12,12 +12,12 @@ class S3StorageStrategy implements StorageStrategy {
 
   // 根据存储配置创建 S3 客户端。
   private createClient(storage: Storage) {
-    const region = storage.region?.trim();
+    const region = storage.region?.trim() || 'auto';
     const endpoint = formatHttpUrl(storage.endpoint);
     const accessKeyId = storage.accessKey?.trim();
     const secretAccessKey = storage.secretKey?.trim();
 
-    if (!region || !endpoint || !accessKeyId || !secretAccessKey) {
+    if (!endpoint || !accessKeyId || !secretAccessKey) {
       throw new BizError('S3 配置不完整');
     }
 

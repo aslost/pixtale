@@ -14,7 +14,7 @@ type StorageType = (typeof StorageTypeEnum)[keyof typeof StorageTypeEnum];
 
 const StorageTypeOptions = [
   { label: "本地", value: StorageTypeEnum.LOCAL },
-  { label: "S3", value: StorageTypeEnum.S3 }
+  { label: "对象存储", value: StorageTypeEnum.S3 }
 ];
 
 export { StorageStatusEnum, StorageTypeEnum, StorageTypeOptions };

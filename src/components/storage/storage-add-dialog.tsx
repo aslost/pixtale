@@ -17,7 +17,7 @@ import { type StorageVo } from "@/server/entity/vo/storage"
 
 const storageTypeOptions = [
   { label: "本地", value: StorageTypeEnum.LOCAL, disabled: true },
-  { label: "S3", value: StorageTypeEnum.S3, disabled: false },
+  { label: "对象存储", value: StorageTypeEnum.S3, disabled: false },
 ]
 
 type StorageAddForm = Omit<StorageInto, "storageId" | "userId">
@@ -139,10 +139,6 @@ export function StorageAddDialog({ title, open, storage, onOpenChange, onStorage
         nextErrors.bucket = "请输入桶名称"
       }
 
-      if (!form.region?.trim()) {
-        nextErrors.region = "请输入区域"
-      }
-
       if (!form.endpoint?.trim()) {
         nextErrors.endpoint = "请输入接入端点"
       }
@@ -208,7 +204,7 @@ export function StorageAddDialog({ title, open, storage, onOpenChange, onStorage
     >
       <div className="grid gap-4">
         <div className="grid gap-2">
-          <label className="text-sm font-medium">名字</label>
+          <label className="text-sm font-medium">名称</label>
           <Input
             value={form.name}
             placeholder="请输入存储名称"
@@ -264,10 +260,8 @@ export function StorageAddDialog({ title, open, storage, onOpenChange, onStorage
               <Input
                 value={form.region ?? ""}
                 placeholder="区域"
-                aria-invalid={Boolean(errors.region)}
                 onChange={(event) => updateField("region", event.target.value)}
               />
-              {errors.region && <p className="text-sm text-destructive">{errors.region}</p>}
             </div>
             <div className="grid gap-2">
               <Input

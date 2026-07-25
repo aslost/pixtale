@@ -20,15 +20,6 @@ file.use('*', contextStorage());
 file.use('*', security);
 file.onError((err, c) => c.text(err.message, 500));
 
-// 原图返回下载文件名，缩图和高清图返回 null。
-function getDisposition(type: number, name: string): string | null {
-  if (type !== FileTypeEnum.ORIGINAL) {
-    return null;
-  }
-
-  return buildContentDisposition(name);
-}
-
 // 根据文件 key 和当前用户 id 查询对应的文件和照片信息。
 async function getPhotoFile(key: string) {
 
@@ -70,7 +61,7 @@ file.get('*', async (c: Context, next: Next) => {
   }
 
   const obj = await storage.get(photoFile.key, photoFile.storageId);
-  const disposition = getDisposition(photoFile.type, photoFile.name);
+  const disposition = photoFile.type === FileTypeEnum.ORIGINAL ? buildContentDisposition(photoFile.name) : null;
   const headers: Record<string, string> = {
     'Content-Type': photoFile.fileType,
     'Cache-Control': 'private, max-age=604800',
