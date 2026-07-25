@@ -18,7 +18,7 @@ const THEME_COOKIE_NAME = "theme"
 
 export async function generateMetadata(): Promise<Metadata> {
   return {
-    title: process.env.TITLE || "",
+    title: process.env.TITLE || "Pixtale",
     icons: {
       icon: "/logo.png",
       apple: "/logo.png",
@@ -38,7 +38,7 @@ export default async function RootLayout({ children }: RootLayoutProps) {
   const defaultSidebarOpen = cookieStore.get(SIDEBAR_COOKIE_NAME)?.value === "true"
   const { userId } = await getLoginInfo(cookieStore.toString())
   const userInfo = userId ? await userService.getById(userId) : null
-  const title = process.env.TITLE || ""
+  const title = process.env.TITLE || "Pixtale"
 
   return (
     <html lang="en" className={`${geist.variable} ${defaultTheme}`} suppressHydrationWarning>

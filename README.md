@@ -1,17 +1,16 @@
 <p align="center">
-    <img src="docs/images/logo.png" width="80px" />
-    <h1 align="center">APixel</h1>
-    <p align="center">一个瀑布流列表照片空间存储程序 🎉</p>
+    <img src="docs/images/logo.png" width="96px" />
+    <h1 align="center">Pixtale</h1>
+    <p align="center"><strong>一个瀑布流列表照片空间存储程序 🎉</strong></p>
+    <p align="center">简体中文 | <a href="README_EN.md">English</a></p>
 </p>
-
-> <p align="center"> 基于Next.Js的照片存储程序，支持使用本地、S3协议对象存储等方式作为存储空间，聚合式存储 </p>
-
 
 ## 项目展示
 
-- [在线演示](#)
+- [在线演示](https://demo.mornglow.top)
 
-![](/docs/demo/demo1.png)
+![](docs/images/demo.jpg)
+![](docs/images/demo1.jpg)
 
 
 ## 功能介绍
@@ -31,19 +30,49 @@
 
 ## 技术栈
 
-- **Web框架**：[Hono](https://hono.dev/)
+- **全栈框架：** [Next.js](https://nextjs.org/)
 
-- **ORM：**[Drizzle](https://orm.drizzle.team/)
+- **Web框架：** [Hono](https://hono.dev/)
 
-- **数据库**：[SQLite](https://sqlite.org/)
+- **ORM：** [Drizzle](https://orm.drizzle.team/)
 
-- **前端框架**：[Next.js](https://nextjs.org/)
+- **数据库：** [SQLite](https://sqlite.org/)
 
-- **UI组件**：[Shadcn UI](https://shadcn.com/)
+- **UI组件：** [shadcn/ui](https://ui.shadcn.com/)
+
+## 快速部署
+
+#### Docker部署
+
+```yaml
+docker run \
+  --name pixtale \
+  -p 8082:8082 \
+  -v /home/pixtale:/app/data \
+  -e ADMIN=root \
+  -e PASSWORD=123456 \
+  -e JWT_SECRET=abc \
+  pixtalelab/pixtale:latest
+```
+
+把上面的 `ADMIN` `PASSWORD` `JWT_SECRET` 改成你自己的，然后运行
+
+#### Windos运行
+
+在 [Releases](https://github.com/pixtalelab/pixtale/releases) 下载 `pixtale-windos.zip`, 解压后在 `.env` 里面配置环境变量，双击 `start.bat` 运行
+
+## 环境变量
+
+| 变量         | 必填 | 默认值     | 说明    |
+|------------|----|---------|-------|
+| ADMIN      | ✅  | 空       | 管理员账号 |
+| PASSWORD   | ✅  | 空       | 管理员密码 |
+| JWT_SECRET | ✅  | 空       | JWT密钥 |
+| TITLE      | ❌  | Pixtale | 网站标题  |
 
 ## 许可证
 
-本项目采用 [AGPL-3.0](LICENSE) 许可证
+`Pixtale` 是基于 [AGPL-3.0](LICENSE) 许可证的开源软件
 
 
 
