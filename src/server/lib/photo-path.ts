@@ -5,9 +5,9 @@ function formatPhotoDate(takenTime: string): string {
   return takenTime.slice(0, 10);
 }
 
-// 生成原图存储路径：photo/userId/YYYY-MM-DD/文件名。
-function buildPhotoKey(userId: string, takenTime: string, fileName: string): string {
-  return `photo/${userId}/${formatPhotoDate(takenTime)}/${fileName}`;
+// 生成原图存储路径：photo/userId/文件名。
+function buildPhotoKey(userId: string, fileName: string): string {
+  return `photo/${userId}/${fileName}`;
 }
 
 // 按 checksum 前四位分片，文件名用 photoId，避免相同内容 key 冲突。

@@ -163,7 +163,7 @@ const photoService = {
   },
 
   // 根据原文件名生成存储 key，若 key 已存在则在扩展名前追加时间戳。
-  async resolvePhotoKey(userId: string, takenTime: string, name: string) {
+  async resolvePhotoKey(userId: string, name: string) {
 
     const trimmedName = name.trim();
 
@@ -171,7 +171,7 @@ const photoService = {
       throw new BizError('文件名不能为空');
     }
 
-    let key = buildPhotoKey(userId, takenTime, trimmedName);
+    let key = buildPhotoKey(userId, trimmedName);
     const [existing] = await orm
       .select({ fileId: fileTab.fileId })
       .from(fileTab)
@@ -180,7 +180,7 @@ const photoService = {
 
     if (existing) {
       const { baseName, extName } = splitFileName(trimmedName);
-      key = buildPhotoKey(userId, takenTime, `${baseName}_${formatFileTimestamp()}${extName}`);
+      key = buildPhotoKey(userId, `${baseName}_${formatFileTimestamp()}${extName}`);
     }
 
     return key;
@@ -232,7 +232,7 @@ const photoService = {
     const images = await processPhotoImages(buffer);
     const meta = await readPhotoExifFromBuffer(buffer);
     const takenTime = meta.takenTime ?? new Date(lastModified > 0 ? lastModified : Date.now()).toISOString();
-    const key = await this.resolvePhotoKey(userId, takenTime, name);
+    const key = await this.resolvePhotoKey(userId, name);
     const photoId = createId();
     const preview = buildPreviewKey(checksum, photoId);
     const thumbnail = buildThumbnailKey(checksum, photoId);
