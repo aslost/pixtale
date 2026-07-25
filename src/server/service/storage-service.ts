@@ -138,6 +138,8 @@ const storageService = {
           : StorageStatusEnum.NORMAL
       })
       .where(eq(storageTab.storageId, params.storageId));
+
+    await this.refreshStorageCache();
   },
 
   // 修改指定存储配置。
