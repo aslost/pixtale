@@ -398,8 +398,13 @@ const photoService = {
         eq(photoTab.userId, userId),
         inArray(photoTab.photoId, params.photoIds)
       ));
+    const photoIds = photos.map((photo) => photo.photoId);
 
-    const fileMap = await fileService.listByPhotoIds(params.photoIds);
+    if (!photoIds.length) {
+      return;
+    }
+
+    const fileMap = await fileService.listByPhotoIds(photoIds);
 
     for (const fileStorage of fileStorageList.list) {
       const keys = photos
@@ -410,14 +415,14 @@ const photoService = {
     }
 
     await orm.delete(albumPhotoTab)
-      .where(inArray(albumPhotoTab.photoId, params.photoIds));
+      .where(inArray(albumPhotoTab.photoId, photoIds));
 
-    await fileService.deleteByPhotoIds(params.photoIds);
+    await fileService.deleteByPhotoIds(photoIds);
 
     await orm.delete(photoTab)
       .where(and(
         eq(photoTab.userId, userId),
-        inArray(photoTab.photoId, params.photoIds)
+        inArray(photoTab.photoId, photoIds)
       ));
   },
 
