@@ -14,17 +14,7 @@ import {
 } from "@/components/ui/dropdown-menu"
 import { UserStatusEnum, UserTypeEnum } from "@/server/enums/user-enum"
 import { type UserVo } from "@/server/entity/vo/user"
-
-const userTypeMap: Record<number, string> = {
-  [UserTypeEnum.ADMIN]: "管理员",
-  [UserTypeEnum.NORMAL]: "普通用户",
-}
-
-const userStatusMap: Record<number, string> = {
-  [UserStatusEnum.DEFAULT]: "正常",
-  [UserStatusEnum.NORMAL]: "正常",
-  [UserStatusEnum.DISABLE]: "禁用",
-}
+import { useTranslations } from "next-intl"
 
 interface SortableHeaderProps {
   label: string
@@ -67,9 +57,10 @@ function formatCapacity(size: number) {
 
 // 渲染用户状态徽标。
 function UserStatusBadge({ status }: { status: number }) {
+  const t = useTranslations("users")
   const disabled = status === UserStatusEnum.DISABLE
   const Icon = disabled ? IconCircleXFilled : IconCircleCheckFilled
-  const text = userStatusMap[status] ?? status
+  const text = disabled ? t("disabled") : t("active")
 
   return (
     <Badge variant="outline" className="px-1.5 text-muted-foreground">
@@ -79,50 +70,52 @@ function UserStatusBadge({ status }: { status: number }) {
   )
 }
 
-// 创建用户列表列配置。
-export function getUserColumns({ onEdit, onToggleStatus, onDelete }: UserColumnsOptions): ColumnDef<UserVo>[] {
+// 创建带国际化文案的用户列表列配置。
+export function useUserColumns({ onEdit, onToggleStatus, onDelete }: UserColumnsOptions): ColumnDef<UserVo>[] {
+  const t = useTranslations("users")
+
   return [
     {
       id: "index",
-      header: "序号",
+      header: t("columns.index"),
       enableHiding: false,
       cell: ({ row }) => row.index + 1,
     },
     {
       accessorKey: "username",
-      header: "用户名",
+      header: t("columns.username"),
       meta: {
         className: "w-1/3",
       },
     },
     {
       accessorKey: "type",
-      header: "类型",
-      cell: ({ row }) => userTypeMap[row.original.type] ?? row.original.type
+      header: t("columns.type"),
+      cell: ({ row }) => row.original.type === UserTypeEnum.ADMIN ? t("admin") : t("user")
     },
     {
       accessorKey: "usedCapacity",
       meta: {
-        label: "已用储存",
+        label: t("columns.usedCapacity"),
       },
-      header: ({ column }) => <SortableHeader label="已用储存" column={column} />,
+      header: ({ column }) => <SortableHeader label={t("columns.usedCapacity")} column={column} />,
       cell: ({ row }) => formatCapacity(row.original.usedCapacity),
     },
     {
       accessorKey: "photoTotal",
       meta: {
-        label: "照片数量",
+        label: t("columns.photoCount"),
       },
-      header: ({ column }) => <SortableHeader label="照片数量" column={column} />,
+      header: ({ column }) => <SortableHeader label={t("columns.photoCount")} column={column} />,
     },
     {
       accessorKey: "status",
-      header: "状态",
+      header: t("columns.status"),
       cell: ({ row }) => <UserStatusBadge status={row.original.status} />,
     },
     {
       id: "actions",
-      header: "操作",
+      header: t("columns.actions"),
       enableHiding: false,
       meta: {
         className: "text-right",
@@ -130,16 +123,16 @@ export function getUserColumns({ onEdit, onToggleStatus, onDelete }: UserColumns
       cell: ({ row }) => (
         <DropdownMenu>
           <DropdownMenuTrigger asChild>
-            <Button variant="ghost" size="icon-sm" aria-label="打开操作菜单">
+            <Button variant="ghost" size="icon-sm" aria-label="Open actions menu">
               <MoreHorizontal />
             </Button>
           </DropdownMenuTrigger>
           <DropdownMenuContent>
-            <DropdownMenuItem onClick={() => onEdit(row.original)}>编辑</DropdownMenuItem>
+            <DropdownMenuItem onClick={() => onEdit(row.original)}>{t("edit")}</DropdownMenuItem>
             <DropdownMenuItem onClick={() => onToggleStatus(row.original.userId)}>
-              {row.original.status === UserStatusEnum.DISABLE ? "启用" : "禁用"}
+              {row.original.status === UserStatusEnum.DISABLE ? t("enable") : t("disable")}
             </DropdownMenuItem>
-            <DropdownMenuItem onClick={() => onDelete(row.original)}>删除</DropdownMenuItem>
+            <DropdownMenuItem onClick={() => onDelete(row.original)}>{t("delete")}</DropdownMenuItem>
           </DropdownMenuContent>
         </DropdownMenu>
       ),

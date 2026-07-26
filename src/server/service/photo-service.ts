@@ -168,7 +168,7 @@ const photoService = {
     const trimmedName = name.trim();
 
     if (!trimmedName) {
-      throw new BizError('文件名不能为空');
+      throw new BizError('photo.fileNameRequired');
     }
 
     let key = buildPhotoKey(userId, trimmedName);
@@ -195,18 +195,18 @@ const photoService = {
     const lastModified = Number(form.get('lastModified') ?? 0);
 
     if (!file) {
-      throw new BizError('请选择照片');
+      throw new BizError('photo.selectRequired');
     }
 
     if (!storageId) {
-      throw new BizError('请选择存储配置');
+      throw new BizError('storage.configRequired');
     }
 
     const fileStorageList = await storageService.getStorageList();
     const fileStorage = fileStorageList.find((item) => item.storageId === storageId);
 
     if (!fileStorage) {
-      throw new BizError('存储不存在');
+      throw new BizError('storage.notFound');
     }
 
     const { buffer, name, size, type } = await this.readPhotoUpload(file);
@@ -321,7 +321,7 @@ const photoService = {
   // 把当前用户的指定照片移动到回收站，并记录回收时间。
   async recycle(params: PhotoRecycleBo, userId: string): Promise<void> {
     if (!params.photoIds?.length) {
-      throw new BizError('请选择照片');
+      throw new BizError('photo.selectRequired');
     }
 
     await orm.update(photoTab)
@@ -349,11 +349,11 @@ const photoService = {
   // 设置当前用户指定照片的收藏状态。
   async favorite(params: PhotoFavoriteBo, userId: string): Promise<void> {
     if (!params.photoIds?.length) {
-      throw new BizError('请选择照片');
+      throw new BizError('photo.selectRequired');
     }
 
     if (!params.favorite) {
-      throw new BizError('请选择收藏状态');
+      throw new BizError('photo.favoriteRequired');
     }
 
     await orm.update(photoTab)
@@ -369,7 +369,7 @@ const photoService = {
   // 恢复当前用户回收站中的指定照片。
   async restore(params: PhotoRestoreBo, userId: string): Promise<void> {
     if (!params.photoIds?.length) {
-      throw new BizError('请选择照片');
+      throw new BizError('photo.selectRequired');
     }
 
     await orm.update(photoTab)
@@ -386,7 +386,7 @@ const photoService = {
   // 彻底删除当前用户的指定照片文件和数据库记录。
   async delete(params: PhotoDeleteBo, userId: string): Promise<void> {
     if (!params.photoIds?.length) {
-      throw new BizError('请选择照片');
+      throw new BizError('photo.selectRequired');
     }
 
     const fileStorageList = await storageService.list();

@@ -16,6 +16,7 @@ import {
 import dynamic from "next/dynamic"
 import { useTrashContext } from "@/app/trash/provider"
 import { useApp } from "@/app/provider"
+import { useTranslations } from "next-intl"
 
 const AlbumMasonry = dynamic(
   () => import("@/components/album/album-masonry").then((mod) => mod.AlbumMasonry),
@@ -23,12 +24,14 @@ const AlbumMasonry = dynamic(
 )
 
 export default function Page() {
+  const t = useTranslations()
   const { initialAlbum } = useTrashContext()
   const { sidebarOpen, setSidebarOpen } = useApp()
   // album 保存带页面跳转地址的回收站入口相册。
   const album = {
     ...initialAlbum,
     albumId: "../trash/photos",
+    name: t(initialAlbum.name),
   }
 
   return (
@@ -47,7 +50,7 @@ export default function Page() {
               <Breadcrumb>
                 <BreadcrumbList>
                   <BreadcrumbItem>
-                    <BreadcrumbPage>回收站</BreadcrumbPage>
+                    <BreadcrumbPage>{t("trash.title")}</BreadcrumbPage>
                   </BreadcrumbItem>
                 </BreadcrumbList>
               </Breadcrumb>

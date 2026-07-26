@@ -27,8 +27,10 @@ import { useApp } from "@/app/provider"
 import { Button } from "@/components/ui/button"
 import { ArrowLeftIcon, BrushCleaning } from "lucide-react"
 import { PhotoMasonrySkeleton } from "@/components/photo/photo-masonry-skeleton"
+import { useTranslations } from "next-intl"
 
 export default function Page() {
+  const t = useTranslations("trash")
   const router = useRouter()
   const { initialPhotos } = useTrashPhotoContext()
   const { sidebarOpen, setSidebarOpen } = useApp()
@@ -104,8 +106,8 @@ export default function Page() {
         refreshMasonry()
       }),
       {
-        loading: '正在清理',
-        success: '清理成功',
+        loading: t("clearing"),
+        success: t("cleared"),
       }
     )
   }
@@ -149,7 +151,7 @@ export default function Page() {
                 onClick={() => router.back()}
               >
                 <ArrowLeftIcon />
-                <span className="sr-only">返回</span>
+                <span className="sr-only">Back</span>
               </Button>
               <Separator
                 orientation="vertical"
@@ -159,7 +161,7 @@ export default function Page() {
                 <BreadcrumbList>
                   <BreadcrumbItem>
                     <BreadcrumbPage className="flex items-center gap-2">
-                      <span>回收站</span>
+                      <span>{t("title")}</span>
                     </BreadcrumbPage>
                   </BreadcrumbItem>
                 </BreadcrumbList>
@@ -194,16 +196,16 @@ export default function Page() {
       <AlertDialogDestructive
         open={deleteOpen}
         onOpenChange={handleDeleteOpenChange}
-        title="确定删除照片？"
-        description="照片会被彻底删除无法恢复"
+        title={t("deletePhotosTitle")}
+        description={t("deletePhotosDescription")}
         onConfirm={deletePhotos}
       />
       <AlertDialogDestructive
         open={clearOpen}
         onOpenChange={handleClearOpenChange}
-        title="确认清空回收站？"
-        description="清空回收站后照片将无法恢复"
-        confirmText="清空"
+        title={t("clearTitle")}
+        description={t("clearDescription")}
+        confirmText={t("clear")}
         onConfirm={clearPhotos}
       />
     </>

@@ -32,13 +32,10 @@ import { SettingItem } from "@/components/setting/setting-item"
 import { settingSet } from "@/request/setting"
 import { type Setting } from "@/server/entity/setting"
 import { SettingPhotoDedupEnum, SettingSyncDeleteEnum } from "@/server/enums/setting-enum"
-
-const syncDeleteOptions = [
-  { label: "开启", value: SettingSyncDeleteEnum.ENABLE },
-  { label: "关闭", value: SettingSyncDeleteEnum.DISABLE },
-]
+import { useTranslations } from "next-intl"
 
 export default function Page() {
+  const t = useTranslations("settings")
   const { sidebarOpen, setSidebarOpen } = useApp()
   const { initialSetting } = useSettingContext()
   // setting 保存当前页面正在编辑的系统设置。
@@ -71,7 +68,7 @@ export default function Page() {
   // 保存当前系统设置。
   function saveSetting() {
     settingSet(setting).then(() => {
-      toast.success("保存成功")
+      toast.success(t("saved"))
     })
   }
 
@@ -90,17 +87,17 @@ export default function Page() {
             <Breadcrumb>
               <BreadcrumbList>
                 <BreadcrumbItem>
-                  <BreadcrumbPage>设置</BreadcrumbPage>
+                  <BreadcrumbPage>{t("title")}</BreadcrumbPage>
                 </BreadcrumbItem>
               </BreadcrumbList>
             </Breadcrumb>
           </div>
         </header>
         <div className="mx-auto flex w-full max-w-5xl flex-col px-5 py-3 md:py-4">
-          <h1 className="text-xl font-semibold pb-3 md:pb-4">基本功能</h1>
+          <h1 className="text-xl font-semibold pb-3 md:pb-4">{t("basicFeatures")}</h1>
           <Separator className="my-4" />
           <div className="flex flex-col">
-            <SettingItem title="定时清理" description="使用定时任务，自动清理回收站照片">
+            <SettingItem title={t("scheduledCleanup")} description={t("scheduledCleanupDescription")}>
               <InputGroup className="w-30">
                 <InputGroupInput
                   id="clear-last"
@@ -112,17 +109,20 @@ export default function Page() {
                   onChange={changeClearLast}
                 />
                 <InputGroupAddon align="inline-end">
-                  <InputGroupText>天后</InputGroupText>
+                  <InputGroupText>{t("days")}</InputGroupText>
                 </InputGroupAddon>
               </InputGroup>
             </SettingItem>
-            <SettingItem title="同步删除" description="删除照片的同时，删除已保存的文件">
+            <SettingItem title={t("syncDelete")} description={t("syncDeleteDescription")}>
               <RadioGroup
                 className="flex flex-row gap-6"
                 value={String(setting.syncDelete)}
                 onValueChange={changeSyncDelete}
               >
-                {syncDeleteOptions.map((option) => (
+                {[
+                  { label: t("enabled"), value: SettingSyncDeleteEnum.ENABLE },
+                  { label: t("disabled"), value: SettingSyncDeleteEnum.DISABLE },
+                ].map((option) => (
                   <div key={option.value} className="flex items-center gap-2">
                     <RadioGroupItem id={`sync-delete-${option.value}`} value={String(option.value)} />
                     <Label htmlFor={`sync-delete-${option.value}`}>{option.label}</Label>
@@ -130,7 +130,7 @@ export default function Page() {
                 ))}
               </RadioGroup>
             </SettingItem>
-            <SettingItem title="照片去重" description="根据图片名称+文件哈希，跳过重复上传">
+            <SettingItem title={t("photoDeduplication")} description={t("photoDeduplicationDescription")}>
               <Switch
                 checked={setting.photoDedup === SettingPhotoDedupEnum.ENABLE}
                 onCheckedChange={changePhotoDedup}
@@ -139,7 +139,7 @@ export default function Page() {
           </div>
           <div className="mt-8 flex justify-end">
             <Button type="button" onClick={saveSetting}>
-              保存
+              {t("save")}
             </Button>
           </div>
         </div>

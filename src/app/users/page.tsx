@@ -23,11 +23,13 @@ import {
 import { userAdd, userDelete, userList, userSet, userToggleStatus } from "@/request/user"
 import { type UserAddBo, type UserSetBo } from "@/server/entity/bo/user"
 import { type UserVo } from "@/server/entity/vo/user"
-import { getUserColumns } from "@/components/user/user-columns"
+import { useUserColumns } from "@/components/user/user-columns"
 import { useUserContext } from "@/app/users/provider"
 import { useApp } from "@/app/provider"
+import { useTranslations } from "next-intl"
 
 export default function Page() {
+  const t = useTranslations("users")
   const { initialUserList } = useUserContext()
   const { sidebarOpen, setSidebarOpen } = useApp()
   // data 保存当前表格展示的用户列表。
@@ -71,7 +73,7 @@ export default function Page() {
   // 提交修改用户信息。
   function editUser(user: UserSetBo) {
     userSet(user).then(() => {
-      toast.success("修改成功")
+      toast.success(t("updated"))
       getUserList()
     })
   }
@@ -129,7 +131,7 @@ export default function Page() {
     }
   }
 
-  const columns = getUserColumns({
+  const columns = useUserColumns({
     onEdit: openEditUser,
     onToggleStatus: toggleUserStatus,
     onDelete: openDeleteUser,
@@ -151,7 +153,7 @@ export default function Page() {
               <Breadcrumb>
                 <BreadcrumbList>
                   <BreadcrumbItem>
-                    <BreadcrumbPage>用户</BreadcrumbPage>
+                    <BreadcrumbPage>{t("title")}</BreadcrumbPage>
                   </BreadcrumbItem>
                 </BreadcrumbList>
               </Breadcrumb>
@@ -164,7 +166,7 @@ export default function Page() {
               action={
                 <Button type="button" onClick={openAddUser}>
                   <Plus />
-                  新增
+                  {t("add")}
                 </Button>
               }
             ></DataTable>
@@ -172,13 +174,13 @@ export default function Page() {
         </SidebarInset>
       </SidebarProvider>
       <UserAddDialog
-        title="添加用户"
+        title={t("addTitle")}
         open={addOpen}
         onOpenChange={setAddOpen}
         onUserConfirm={(user) => addUser(user as UserAddBo)}
       />
       <UserAddDialog
-        title="编辑用户"
+        title={t("editTitle")}
         open={editOpen}
         user={editingUser}
         onOpenChange={handleEditOpenChange}
@@ -187,8 +189,8 @@ export default function Page() {
       <AlertDialogDestructive
         open={deleteOpen}
         onOpenChange={handleDeleteOpenChange}
-        title="确定删除用户？"
-        description={`删除用户后数据将会被清空`}
+        title={t("deleteTitle")}
+        description={t("deleteDescription")}
         onConfirm={confirmDeleteUser}
       />
     </>

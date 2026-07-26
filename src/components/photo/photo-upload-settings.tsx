@@ -1,6 +1,7 @@
 "use client"
 
 import { useState } from "react"
+import { useTranslations } from "next-intl"
 
 import { Slider } from "@/components/ui/slider"
 import { Switch } from "@/components/ui/switch"
@@ -52,6 +53,7 @@ function savePhotoUploadSettings(settings: PhotoUploadSettingsValue) {
 
 // 渲染照片上传 Popover 内的设置项。
 export function PhotoUploadSettings({ onChange }: { onChange?: () => void }) {
+  const t = useTranslations("photos.upload")
   const [settings, setSettings] = useState<PhotoUploadSettingsValue>(() => readPhotoUploadSettings()) // 从本地存储读取的当前设置。
 
   // 合并更新设置并写入本地存储。
@@ -70,7 +72,7 @@ export function PhotoUploadSettings({ onChange }: { onChange?: () => void }) {
     <div className="flex flex-col gap-4">
       <div className="flex flex-col gap-2">
         <div className="flex items-center justify-between text-sm font-medium">
-          <span>并发上传</span>
+          <span>{t("concurrentUploads")}</span>
           <span className="text-muted-foreground">{settings.concurrency}</span>
         </div>
         <Slider
@@ -82,7 +84,7 @@ export function PhotoUploadSettings({ onChange }: { onChange?: () => void }) {
         />
       </div>
       <div className="flex flex-col gap-2">
-        <div className="text-sm font-medium">失败重试</div>
+        <div className="text-sm font-medium">{t("retryFailedUploads")}</div>
         <Switch
           checked={settings.retryOnFail}
           onCheckedChange={(retryOnFail) => updateSettings({ retryOnFail })}

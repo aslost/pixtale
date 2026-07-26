@@ -28,6 +28,7 @@ import { PhotoDateDrawer } from "@/components/photo/photo-date-drawer"
 import { PhotoMasonrySkeleton } from "@/components/photo/photo-masonry-skeleton"
 import { usePhotoContext } from "@/app/photos/provider"
 import { useApp } from "@/app/provider"
+import { useTranslations } from "next-intl"
 
 const AlbumSelectDialog = dynamic(
   () => import("@/components/album/album-select-dialog").then((mod) => mod.AlbumSelectDialog),
@@ -39,7 +40,9 @@ const PhotoViewer = dynamic(
   { ssr: false }
 )
 
+// 渲染照片列表页面。
 export default function Page() {
+  const t = useTranslations("photos")
   const { initialPhotos } = usePhotoContext()
   const { sidebarOpen, setSidebarOpen, refreshAlbums } = useApp()
   // isBrowser 标记当前是否在浏览器环境，SSR 阶段显示骨架屏。
@@ -163,7 +166,7 @@ export default function Page() {
                 <BreadcrumbList>
                   <BreadcrumbItem>
                     <BreadcrumbPage className="flex items-center gap-2">
-                      <span>照片</span>
+                      <span>{t("title")}</span>
                     </BreadcrumbPage>
                   </BreadcrumbItem>
                 </BreadcrumbList>

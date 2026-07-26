@@ -28,6 +28,7 @@ import { ThemeSwitcher } from "@/components/layout/theme-switcher"
 import { ChevronsUpDownIcon, UserRound, Key, BookOpen, LogOutIcon } from "lucide-react"
 import { logout } from "@/request/login"
 import { useApp } from "@/app/provider"
+import { useTranslations } from "next-intl"
 
 const AvatarUpload = dynamic(
   () => import("@/components/layout/avatar-upload").then((mod) => mod.AvatarUpload),
@@ -43,6 +44,7 @@ function getAvatarFallback(name: string) {
   return Array.from(name.trim()).slice(0, 1).join("").toUpperCase()
 }
 
+// 渲染当前用户菜单。
 export function NavUser({
   user,
 }: {
@@ -52,6 +54,7 @@ export function NavUser({
     avatar: string
   }
 }) {
+  const t = useTranslations("layout.userMenu")
   const { isMobile } = useSidebar()
   const router = useRouter()
   const { setUserInfo } = useApp()
@@ -165,21 +168,21 @@ export function NavUser({
               <DropdownMenuGroup>
                 <DropdownMenuItem onClick={openAvatarUpload}>
                   <UserRound />
-                  更换头像
+                  {t("changeAvatar")}
                 </DropdownMenuItem>
                 <DropdownMenuItem onClick={openUpdatePassword}>
                   <Key />
-                  修改密码
+                  {t("changePassword")}
                 </DropdownMenuItem>
                 <DropdownMenuItem>
                   <BookOpen />
-                  文档
+                  {t("documentation")}
                 </DropdownMenuItem>
               </DropdownMenuGroup>
               <DropdownMenuSeparator />
               <DropdownMenuItem onClick={logoutUser}>
                 <LogOutIcon />
-                退出
+                {t("signOut")}
               </DropdownMenuItem>
             </DropdownMenuContent>
           </DropdownMenu>

@@ -16,11 +16,10 @@ function parsePhotoExifJson(exif: string | null | undefined) {
 const colorSpaceLabels: Record<number, string> = {
   1: "sRGB",
   2: "Adobe RGB",
-  65535: "未校准",
 }
 
 // 把 Exif 色彩空间字段格式化成可读文本。
-function formatColorSpace(exif: Record<string, unknown> | null | undefined) {
+function formatColorSpace(exif: Record<string, unknown> | null | undefined, uncalibrated: string) {
   if (!exif) {
     return null
   }
@@ -36,19 +35,19 @@ function formatColorSpace(exif: Record<string, unknown> | null | undefined) {
   }
 
   if (typeof colorSpace === "number") {
-    return colorSpaceLabels[colorSpace] ?? String(colorSpace)
+    return colorSpace === 65535 ? uncalibrated : colorSpaceLabels[colorSpace] ?? String(colorSpace)
   }
 
   return String(colorSpace)
 }
 
 // 从照片 exif JSON 字符串读取色彩空间。
-export function getPhotoColorSpace(exif: string | null | undefined) {
-  return formatColorSpace(parsePhotoExifJson(exif))
+export function getPhotoColorSpace(exif: string | null | undefined, uncalibrated = "Uncalibrated") {
+  return formatColorSpace(parsePhotoExifJson(exif), uncalibrated)
 }
 
 type ViewerField = {
-  label: string
+  key: "camera" | "lens" | "shutter" | "aperture" | "focalLength" | "iso"
   value: string
   wrap?: boolean
 }
@@ -135,12 +134,12 @@ export function getPhotoDeviceParams(exif: string | null | undefined): ViewerFie
   const camera = [data.Make, data.Model].filter(Boolean).map(String).join(" ").trim()
 
   if (camera) {
-    items.push({ label: "相机", value: camera, wrap: true })
+    items.push({ key: "camera", value: camera, wrap: true })
   }
 
   const lens = [data.LensMake, data.LensModel].filter(Boolean).map(String).join(" ").trim()
   if (lens) {
-    items.push({ label: "镜头", value: lens, wrap: true })
+    items.push({ key: "lens", value: lens, wrap: true })
   }
 
   return items
@@ -157,22 +156,22 @@ export function getPhotoShootingParams(exif: string | null | undefined): ViewerF
 
   const exposureTime = formatExposureTime(data.ExposureTime)
   if (exposureTime) {
-    items.push({ label: "快门", value: exposureTime })
+    items.push({ key: "shutter", value: exposureTime })
   }
 
   const fNumber = formatFNumber(data.FNumber)
   if (fNumber) {
-    items.push({ label: "光圈", value: fNumber })
+    items.push({ key: "aperture", value: fNumber })
   }
 
   const focalLength = formatFocalLength(data.FocalLength)
   if (focalLength) {
-    items.push({ label: "焦距", value: focalLength })
+    items.push({ key: "focalLength", value: focalLength })
   }
 
   const iso = exifText(data.ISO)
   if (iso) {
-    items.push({ label: "ISO", value: iso })
+    items.push({ key: "iso", value: iso })
   }
 
   return items

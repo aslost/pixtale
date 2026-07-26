@@ -10,6 +10,7 @@ import { formatPhotoTakenDate, formatRecycleTime } from "@/lib/date"
 import { getThumbHashUrl } from "@/lib/thumb-hash"
 import { PhotoFavoriteEnum, PhotoStatusEnum } from "@/server/enums/photo-enum"
 import { type PhotoVo } from "@/server/entity/vo/photo"
+import { useLocale, useTranslations } from "next-intl"
 
 type TouchHoverCloseRef = {
   current: (() => void) | null
@@ -56,6 +57,8 @@ export function PhotoCard({
   onSelectedChange,
   touchHoverCloseRef,
 }: PhotoCardProps) {
+  const t = useTranslations("photos")
+  const locale = useLocale()
   const src = data.thumbnail || data.preview || data.key
   const ratio = data.width && data.height ? data.height / data.width : 1
   const placeholder = useMemo(() => getThumbHashUrl(data.thumbHash), [data.thumbHash])
@@ -154,7 +157,7 @@ export function PhotoCard({
       )}
       {imageError ? (
         <div className="absolute inset-0 flex items-center justify-center px-3 text-center text-sm text-muted-foreground">
-          图片加载失败
+          {t("imageLoadFailed")}
         </div>
       ) : (
         <img
@@ -183,7 +186,7 @@ export function PhotoCard({
             filter: "drop-shadow(0 1px 2px rgba(0,0,0,0.4)) drop-shadow(0 0 1px rgba(0,0,0,0.3))",
           }}
         >
-          {formatRecycleTime(data.recycleTime)}
+          {formatRecycleTime(data.recycleTime, locale)}
         </div>
       )}
       <div
@@ -194,7 +197,7 @@ export function PhotoCard({
         onClick={(event) => event.stopPropagation()}
       >
         <Checkbox
-          aria-label={`选择照片 ${data.name}`}
+          aria-label={`Select photo ${data.name}`}
           checked={selected}
           className="!size-4.5 rounded-full border-0 !bg-white/35 data-[state=checked]:!bg-[#e5e5e5] data-[state=checked]:!text-black [&_svg]:!size-3"
           onCheckedChange={(checked) => changeSelected(checked === true)}
@@ -220,7 +223,7 @@ export function PhotoCard({
             showHover ? "opacity-100 pointer-events-auto" : "",
           ].join(" ")}
           onClick={handleFavoriteClick}
-          aria-label={favorite ? `取消喜欢 ${data.name}` : `喜欢照片 ${data.name}`}
+          aria-label={favorite ? `Remove ${data.name} from favorites` : `Add ${data.name} to favorites`}
         >
           <HeartIcon className="size-[18px] fill-current" />
         </Button>
@@ -233,7 +236,7 @@ export function PhotoCard({
             </h3>
             <div className="mb-1 flex justify-start">
               <span className={["text-xs text-white/85 opacity-0 group-hover:opacity-100", showHover ? "opacity-100" : ""].join(" ")}>
-                {formatPhotoTakenDate(data.takenTime)}
+                {formatPhotoTakenDate(data.takenTime, locale)}
               </span>
             </div>
             <div className={["flex flex-wrap justify-start gap-1 text-xs text-white/85 opacity-0 group-hover:opacity-100", showHover ? "opacity-100" : ""].join(" ")}>

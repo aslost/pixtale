@@ -17,6 +17,7 @@ import {
 } from "@/components/ui/field"
 import { Input } from "@/components/ui/input"
 import { type LoginBo } from "@/server/entity/bo/login"
+import { useTranslations } from "next-intl"
 
 interface LoginFormProps extends React.ComponentProps<"div"> {
   loading?: boolean
@@ -29,6 +30,7 @@ export function LoginForm({
   onLogin,
   ...props
 }: LoginFormProps) {
+  const t = useTranslations("login")
   const { title } = useApp()
   // form 保存登录表单的用户名和密码。
   const [form, setForm] = useState<LoginBo>({
@@ -89,7 +91,7 @@ export function LoginForm({
             {title}
           </CardTitle>
           <CardDescription>
-            输入账号信息以登录系统
+            {t("description")}
           </CardDescription>
         </CardHeader>
         <CardContent>
@@ -100,7 +102,7 @@ export function LoginForm({
                   id="text"
                   type="text"
                   autoComplete="off"
-                  placeholder="用户名称"
+                  placeholder={t("username")}
                   value={form.username}
                   onChange={(event) => updateField("username", event.target.value)}
                   className="bg-white/50"
@@ -111,7 +113,7 @@ export function LoginForm({
                 <Input
                   id="new-passowrd"
                   type="password"
-                  placeholder="密码"
+                  placeholder={t("password")}
                   autoComplete="off"
                   value={form.password}
                   onChange={(event) => updateField("password", event.target.value)}
@@ -122,7 +124,7 @@ export function LoginForm({
               <Field className="mb-2">
                 <Button type="submit" disabled={loading}>
                   {loading && <LoaderCircle className="animate-spin" />}
-                  登录
+                  {t("signIn")}
                 </Button>
               </Field>
             </FieldGroup>

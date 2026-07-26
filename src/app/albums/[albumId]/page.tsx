@@ -1,6 +1,7 @@
 'use client';
 import dynamic from "next/dynamic"
 import { useParams, useRouter } from "next/navigation"
+import { useTranslations } from "next-intl"
 
 import { AppSidebar } from "@/components/layout/app-sidebar"
 import { Button } from "@/components/ui/button"
@@ -42,6 +43,7 @@ const PhotoViewer = dynamic(
 )
 
 export default function Page() {
+  const t = useTranslations("albums")
   const router = useRouter()
   const { albumId } = useParams<{ albumId: string }>()
   const { initialPhotos } = useAlbumPhotoContext()
@@ -189,7 +191,7 @@ export default function Page() {
                 onClick={() => router.back()}
               >
                 <ArrowLeftIcon />
-                <span className="sr-only">返回</span>
+                <span className="sr-only">Back</span>
               </Button>
               <Separator
                 orientation="vertical"
@@ -198,7 +200,7 @@ export default function Page() {
               <Breadcrumb>
                 <BreadcrumbList>
                   <BreadcrumbItem>
-                    <BreadcrumbPage>{currentAlbumName || "相册"}</BreadcrumbPage>
+                    <BreadcrumbPage>{currentAlbumName || t("title")}</BreadcrumbPage>
                   </BreadcrumbItem>
                 </BreadcrumbList>
               </Breadcrumb>

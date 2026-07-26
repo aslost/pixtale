@@ -1,6 +1,7 @@
 "use client"
 
 import { useEffect, useState } from "react"
+import { useTranslations } from "next-intl"
 
 import { Dialog } from "@/components/common/dialog"
 import { Checkbox } from "@/components/ui/checkbox"
@@ -22,6 +23,7 @@ interface AlbumSelectDialogProps {
 
 // 渲染加入相册时使用的相册选择弹框。
 export function AlbumSelectDialog({ open, onOpenChange, onAlbumSelect }: AlbumSelectDialogProps) {
+  const t = useTranslations("albums")
   const albums = useAlbumStore((state) => state.albums)
   // selectedAlbumIds 保存当前选中的相册 id 列表。
   const [selectedAlbumIds, setSelectedAlbumIds] = useState<string[]>([])
@@ -62,14 +64,14 @@ export function AlbumSelectDialog({ open, onOpenChange, onAlbumSelect }: AlbumSe
     <Dialog
       open={open}
       onOpenChange={onOpenChange}
-      title="加入相册"
+      title={t("addPhotosTitle")}
       showCloseButton={false}
       onConfirm={saveAlbum}
     >
       <div className="flex flex-col gap-3 max-h-[60vh] overflow-auto pb-0.25">
         {!albums.length && (
           <div className="py-8 text-center text-sm text-muted-foreground">
-            暂无相册
+            {t("empty")}
           </div>
         )}
         {!!albums.length && (
@@ -100,7 +102,7 @@ export function AlbumSelectDialog({ open, onOpenChange, onAlbumSelect }: AlbumSe
                 <ItemContent className="flex-none">
                   <Checkbox
                     checked={selectedAlbumIds.includes(album.albumId)}
-                    aria-label={`选择 ${album.name}`}
+                    aria-label={`Select ${album.name}`}
                     onClick={(event) => event.stopPropagation()}
                     onCheckedChange={() => changeAlbum(album.albumId)}
                   />

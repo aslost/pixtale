@@ -15,7 +15,7 @@ async function getStorage(storageId: string): Promise<Storage> {
   const fileStorage = storageList.find((item) => item.storageId === storageId);
 
   if (!fileStorage) {
-    throw new BizError('存储不存在');
+    throw new BizError('storage.notFound');
   }
 
   return fileStorage;
@@ -24,7 +24,7 @@ async function getStorage(storageId: string): Promise<Storage> {
 // 校验存储是否可用，禁用则抛出异常。
 function assertStorageEnabled(fileStorage: Storage) {
   if (fileStorage.status === StorageStatusEnum.DISABLE) {
-    throw new BizError('存储已被禁用');
+    throw new BizError('storage.disabled');
   }
 }
 

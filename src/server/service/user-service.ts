@@ -72,7 +72,7 @@ const userService = {
     const name = username?.trim();
 
     if (!name) {
-      throw new BizError('用户名不能为空');
+      throw new BizError('user.usernameRequired');
     }
 
     const [user] = await orm
@@ -112,7 +112,7 @@ const userService = {
     const match = params.avatar.match(/^data:image\/webp;base64,(.+)$/);
 
     if (!match?.[1]) {
-      throw new BizError('头像格式错误');
+      throw new BizError('user.avatarInvalid');
     }
 
     await storage.put([{
@@ -188,17 +188,17 @@ const userService = {
     const username = params.username?.trim();
 
     if (!username || !params.password?.trim()) {
-      throw new BizError('用户名和密码不能为空');
+      throw new BizError('user.credentialsRequired');
     }
 
     if (!params.type) {
-      throw new BizError('请选择用户类型');
+      throw new BizError('user.typeRequired');
     }
 
     const [user] = await orm.select().from(userTab).where(eq(userTab.username, username)).limit(1);
 
     if (user) {
-      throw new BizError('用户名已存在');
+      throw new BizError('user.usernameExists');
     }
 
     const password = await hashPassword(params.password);
@@ -222,15 +222,15 @@ const userService = {
     const username = params.username?.trim();
 
     if (!userId) {
-      throw new BizError('请选择用户');
+      throw new BizError('user.selectRequired');
     }
 
     if (!username) {
-      throw new BizError('用户名不能为空');
+      throw new BizError('user.usernameRequired');
     }
 
     if (!params.type) {
-      throw new BizError('请选择用户类型');
+      throw new BizError('user.typeRequired');
     }
 
     const [user] = await orm
@@ -242,7 +242,7 @@ const userService = {
       .limit(1);
 
     if (!user) {
-      throw new BizError('用户不存在');
+      throw new BizError('user.notFound');
     }
 
     const [existsUser] = await orm
@@ -254,7 +254,7 @@ const userService = {
       .limit(1);
 
     if (existsUser && existsUser.userId !== userId) {
-      throw new BizError('用户名已存在');
+      throw new BizError('user.usernameExists');
     }
 
     const nextPassword = params.password?.trim();
@@ -293,7 +293,7 @@ const userService = {
   async setUserPassword(params: UserPasswordBo, userId: string): Promise<void> {
 
     if (!params.password?.trim()) {
-      throw new BizError('请输入密码');
+      throw new BizError('user.passwordRequired');
     }
 
     const password = await hashPassword(params.password.trim());
@@ -309,7 +309,7 @@ const userService = {
   // 切换指定用户的启用状态。
   async toggleStatus(params: UserToggleStatusBo): Promise<void> {
     if (!params.userId) {
-      throw new BizError('请选择用户');
+      throw new BizError('user.selectRequired');
     }
 
     const [user] = await orm
@@ -321,7 +321,7 @@ const userService = {
       .limit(1);
 
     if (!user) {
-      throw new BizError('用户不存在');
+      throw new BizError('user.notFound');
     }
 
     await orm.update(userTab)

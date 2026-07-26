@@ -1,6 +1,7 @@
 "use client"
 
 import type * as React from "react"
+import { useTranslations } from "next-intl"
 
 import { Button } from "@/components/ui/button"
 import { useIsMobile } from "@/hooks/use-mobile"
@@ -40,8 +41,8 @@ function Dialog({
   description,
   trigger,
   triggerText,
-  confirmText = "确定",
-  cancelText = "取消",
+  confirmText,
+  cancelText,
   footer,
   showFooter = true,
   showCloseButton,
@@ -51,6 +52,7 @@ function Dialog({
   onConfirm,
   ...props
 }: CommonDialogProps) {
+  const t = useTranslations("common")
   const isMobile = useIsMobile() // isMobile 标记当前是否为移动端视口。
 
   return (
@@ -88,11 +90,11 @@ function Dialog({
               <>
                 <DialogClose asChild>
                   <Button type="button" variant="outline">
-                    {cancelText}
+                    {cancelText ?? t("cancel")}
                   </Button>
                 </DialogClose>
                 <Button type="button" onClick={onConfirm}>
-                  {confirmText}
+                  {confirmText ?? t("confirm")}
                 </Button>
               </>
             )}

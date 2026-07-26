@@ -14,11 +14,7 @@ import {
 import { StorageTypeEnum } from "@/server/enums/storage-enum"
 import { type StorageInto } from "@/server/entity/storage"
 import { type StorageVo } from "@/server/entity/vo/storage"
-
-const storageTypeOptions = [
-  { label: "本地", value: StorageTypeEnum.LOCAL, disabled: true },
-  { label: "对象存储", value: StorageTypeEnum.S3, disabled: false },
-]
+import { useTranslations } from "next-intl"
 
 type StorageAddForm = Omit<StorageInto, "storageId" | "userId">
 type StorageAddFormErrors = Partial<Record<keyof StorageAddForm, string>>
@@ -61,6 +57,11 @@ function createStorageForm(storage?: StorageVo | null): StorageAddForm {
 
 // 渲染存储弹窗，并在确认后把存储配置交给父组件保存。
 export function StorageAddDialog({ title, open, storage, onOpenChange, onStorageConfirm }: StorageAddDialogProps) {
+  const t = useTranslations("storage")
+  const storageTypeOptions = [
+    { label: t("local"), value: StorageTypeEnum.LOCAL, disabled: true },
+    { label: t("objectStorage"), value: StorageTypeEnum.S3, disabled: false },
+  ]
   // resetTimerRef 保存关闭动画结束后重置表单的定时器。
   const resetTimerRef = useRef<ReturnType<typeof setTimeout> | null>(null)
   // form 保存当前弹框内的存储表单数据。
@@ -127,28 +128,28 @@ export function StorageAddDialog({ title, open, storage, onOpenChange, onStorage
     const nextErrors: StorageAddFormErrors = {}
 
     if (!form.name.trim()) {
-      nextErrors.name = "请输入存储名称"
+      nextErrors.name = t("nameRequired")
     }
 
     if (!form.type) {
-      nextErrors.type = "请选择存储类型"
+      nextErrors.type = t("typeRequired")
     }
 
     if (isS3) {
       if (!form.bucket?.trim()) {
-        nextErrors.bucket = "请输入桶名称"
+        nextErrors.bucket = t("bucketRequired")
       }
 
       if (!form.endpoint?.trim()) {
-        nextErrors.endpoint = "请输入接入端点"
+        nextErrors.endpoint = t("endpointRequired")
       }
 
       if (!form.accessKey?.trim()) {
-        nextErrors.accessKey = "请输入 Access Key"
+        nextErrors.accessKey = t("accessKeyRequired")
       }
 
       if (!form.secretKey?.trim()) {
-        nextErrors.secretKey = "请输入 Secret Key"
+        nextErrors.secretKey = t("secretKeyRequired")
       }
     }
 
@@ -204,10 +205,10 @@ export function StorageAddDialog({ title, open, storage, onOpenChange, onStorage
     >
       <div className="grid gap-4">
         <div className="grid gap-2">
-          <label className="text-sm font-medium">名称</label>
+          <label className="text-sm font-medium">{t("name")}</label>
           <Input
             value={form.name}
-            placeholder="请输入存储名称"
+            placeholder={t("namePlaceholder")}
             aria-invalid={Boolean(errors.name)}
             onChange={(event) => updateField("name", event.target.value)}
           />
@@ -215,10 +216,10 @@ export function StorageAddDialog({ title, open, storage, onOpenChange, onStorage
         </div>
 
         <div className="grid gap-2">
-          <label className="text-sm font-medium">类型</label>
+          <label className="text-sm font-medium">{t("type")}</label>
           <Select value={String(form.type)} onValueChange={updateType} disabled={typeLocked}>
             <SelectTrigger className="w-full" aria-invalid={Boolean(errors.type)} disabled={typeLocked}>
-              <SelectValue placeholder="请选择存储类型" />
+              <SelectValue placeholder={t("typePlaceholder")} />
             </SelectTrigger>
             <SelectContent>
               {storageTypeOptions.map((option) => (
@@ -241,7 +242,7 @@ export function StorageAddDialog({ title, open, storage, onOpenChange, onStorage
             <div className="grid gap-2">
               <Input
                 value={form.domain ?? ""}
-                placeholder="访问域名（可选）"
+                placeholder={t("domainPlaceholder")}
                 aria-invalid={Boolean(errors.domain)}
                 onChange={(event) => updateField("domain", event.target.value)}
               />
@@ -250,7 +251,7 @@ export function StorageAddDialog({ title, open, storage, onOpenChange, onStorage
             <div className="grid gap-2">
               <Input
                 value={form.bucket ?? ""}
-                placeholder="桶名称"
+                placeholder={t("bucket")}
                 aria-invalid={Boolean(errors.bucket)}
                 onChange={(event) => updateField("bucket", event.target.value)}
               />
@@ -259,14 +260,14 @@ export function StorageAddDialog({ title, open, storage, onOpenChange, onStorage
             <div className="grid gap-2">
               <Input
                 value={form.region ?? ""}
-                placeholder="区域"
+                placeholder={t("region")}
                 onChange={(event) => updateField("region", event.target.value)}
               />
             </div>
             <div className="grid gap-2">
               <Input
                 value={form.endpoint ?? ""}
-                placeholder="接入端点"
+                placeholder={t("endpoint")}
                 aria-invalid={Boolean(errors.endpoint)}
                 onChange={(event) => updateField("endpoint", event.target.value)}
               />

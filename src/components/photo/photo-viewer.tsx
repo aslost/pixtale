@@ -14,6 +14,7 @@ import { Button } from "@/components/ui/button"
 import { getThumbHashUrl } from "@/lib/thumb-hash"
 import { type PhotoVo } from "@/server/entity/vo/photo"
 import { usePhotoStore } from "@/store/photo-store"
+import { useTranslations } from "next-intl"
 
 interface PhotoViewerProps {
   // 控制查看器是否显示。
@@ -255,6 +256,7 @@ function loadPreviewImage(
 
 // 渲染原图加载进度。
 function OriginalProgressButton({ progress, error }: { progress: OriginalProgress | null, error: boolean }) {
+  const t = useTranslations("photos.viewer")
   if (!progress) {
     return null
   }
@@ -276,7 +278,7 @@ function OriginalProgressButton({ progress, error }: { progress: OriginalProgres
       )}
       <span className="flex flex-col items-start leading-none">
         <span className={["text-xs font-medium", error ? "text-red-500" : "text-white"].join(" ")}>
-          <span className="text-xs mr-[1px]"> {error ? "加载失败" : "加载中"} </span>
+          <span className="text-xs mr-[1px]"> {error ? t("loadFailed") : t("loading")} </span>
           {!error && <span className="text-white/70"> {percent}%</span>}
         </span>
         <span className="text-xs text-white/70">
@@ -304,7 +306,7 @@ function PrevButton({ showActions }: { showActions: boolean }) {
       onClick={() => prev()}
     >
       <ChevronLeftIcon />
-      <span className="sr-only">上一张</span>
+      <span className="sr-only">Previous photo</span>
     </Button>
   )
 }
@@ -326,7 +328,7 @@ function NextButton({ showActions }: { showActions: boolean }) {
       onClick={() => next()}
     >
       <ChevronRightIcon />
-      <span className="sr-only">下一张</span>
+      <span className="sr-only">Next photo</span>
     </Button>
   )
 }
@@ -365,7 +367,7 @@ function FullscreenButton({
       {...tap}
     >
       <MaximizeIcon />
-      <span className="sr-only">全屏</span>
+      <span className="sr-only">Enter fullscreen</span>
     </Button>
   )
 }
@@ -398,7 +400,7 @@ function InfoButton({
       {open
         ? <PanelRightClose className="hidden md:block" />
         : <PanelRightOpen className="hidden md:block" />}
-      <span className="sr-only">照片信息</span>
+      <span className="sr-only">Photo information</span>
     </Button>
   )
 }
@@ -431,7 +433,7 @@ function RotateButton({ showActions, onRotate }: { showActions: boolean, onRotat
       {...tap}
     >
       <RotateCcwSquare />
-      <span className="sr-only">旋转</span>
+      <span className="sr-only">Rotate photo</span>
     </Button>
   )
 }
@@ -478,7 +480,7 @@ function LoadOriginalButton({
       {...tap}
     >
       {originalLoaded ? <CircleIcon /> : <LoaderCircleIcon />}
-      <span className="sr-only">加载原图</span>
+      <span className="sr-only">Load original photo</span>
     </Button>
   )
 }
@@ -500,7 +502,7 @@ function CloseButton({ showActions }: { showActions: boolean }) {
       {...tap}
     >
       <ArrowLeftIcon />
-      <span className="sr-only">返回</span>
+      <span className="sr-only">Back</span>
     </Button>
   )
 }

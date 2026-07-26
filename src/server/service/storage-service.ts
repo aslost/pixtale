@@ -70,11 +70,11 @@ const storageService = {
     const name = params.name?.trim();
 
     if (!name) {
-      throw new BizError('存储名称不能为空');
+      throw new BizError('storage.nameRequired');
     }
 
     if (!params.type) {
-      throw new BizError('请选择存储类型');
+      throw new BizError('storage.typeRequired');
     }
 
     const [existsStorage] = await orm
@@ -84,7 +84,7 @@ const storageService = {
       .limit(1);
 
     if (existsStorage) {
-      throw new BizError('存储名称已存在');
+      throw new BizError('storage.nameExists');
     }
 
     await orm.insert(storageTab).values({
@@ -101,7 +101,7 @@ const storageService = {
   // 把指定存储配置置顶。
   async setTop(params: StorageSetTopBo): Promise<void> {
     if (!params.storageId) {
-      throw new BizError('请选择存储');
+      throw new BizError('storage.selectRequired');
     }
 
     await orm.update(storageTab)
@@ -116,7 +116,7 @@ const storageService = {
   // 切换指定存储配置的启用状态。
   async toggleStatus(params: StorageToggleStatusBo): Promise<void> {
     if (!params.storageId) {
-      throw new BizError('请选择存储');
+      throw new BizError('storage.selectRequired');
     }
 
     const [storage] = await orm
@@ -128,7 +128,7 @@ const storageService = {
       .limit(1);
 
     if (!storage) {
-      throw new BizError('存储不存在');
+      throw new BizError('storage.notFound');
     }
 
     await orm.update(storageTab)
@@ -147,15 +147,15 @@ const storageService = {
     const name = params.name?.trim();
 
     if (!params.storageId) {
-      throw new BizError('请选择存储');
+      throw new BizError('storage.selectRequired');
     }
 
     if (!name) {
-      throw new BizError('存储名称不能为空');
+      throw new BizError('storage.nameRequired');
     }
 
     if (!params.type) {
-      throw new BizError('请选择存储类型');
+      throw new BizError('storage.typeRequired');
     }
 
     await orm.update(storageTab)
@@ -178,7 +178,7 @@ const storageService = {
   // 删除指定存储配置，并把全部关联照片的存储标记置空。
   async delete(storageId: string): Promise<void> {
     if (!storageId) {
-      throw new BizError('请选择存储');
+      throw new BizError('storage.selectRequired');
     }
 
     await orm.update(photoTab)

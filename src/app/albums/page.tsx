@@ -22,6 +22,7 @@ import { useAlbumContext } from "@/app/albums/provider"
 import { useApp } from "@/app/provider"
 import { albumAdd, albumDelete, albumList, albumSetName, albumSetTop } from "@/request/album"
 import { type AlbumVo } from "@/server/entity/vo/album"
+import { useTranslations } from "next-intl"
 
 const AlbumMasonry = dynamic(
   () => import("@/components/album/album-masonry").then((mod) => mod.AlbumMasonry),
@@ -29,6 +30,7 @@ const AlbumMasonry = dynamic(
 )
 
 export default function Page() {
+  const t = useTranslations("albums")
   const { initialAlbums } = useAlbumContext()
   const { sidebarOpen, setSidebarOpen, refreshAlbums } = useApp()
   // albums 保存当前页面展示的相册列表。
@@ -185,13 +187,13 @@ export default function Page() {
               <Breadcrumb>
                 <BreadcrumbList>
                   <BreadcrumbItem>
-                    <BreadcrumbPage>相册</BreadcrumbPage>
+                    <BreadcrumbPage>{t("title")}</BreadcrumbPage>
                   </BreadcrumbItem>
                 </BreadcrumbList>
               </Breadcrumb>
             </div>
             <div className="fixed left-[calc(100vw-3.5rem)]  md:left-[calc(100vw-4rem)] top-0 flex h-12 items-center gap-3 px-4">
-              <AlbumAddDialog title="添加相册" onNameConfirm={addAlbum} />
+              <AlbumAddDialog title={t("addTitle")} onNameConfirm={addAlbum} />
             </div>
           </header>
           <div className="px-2 md:pl-3 md:pr-2">
@@ -216,8 +218,8 @@ export default function Page() {
       <AlertDialogDestructive
         open={deleteOpen}
         onOpenChange={handleDeleteOpenChange}
-        title="确定删除相册？"
-        description={`相册删除后无法恢复，照片会保留`}
+        title={t("deleteTitle")}
+        description={t("deleteDescription")}
         onConfirm={confirmDeleteAlbum}
       />
     </>

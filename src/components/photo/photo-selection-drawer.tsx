@@ -55,7 +55,7 @@ export function PhotoSelectionDrawer({ open, onClose, onDelete, onSelectAll, onR
       ].join(" ")}
     >
       <div className="relative flex h-11.75 items-center justify-between px-4">
-        <Button variant="ghost" size="icon-sm" onClick={onClose} aria-label="取消选择">
+        <Button variant="ghost" size="icon-sm" onClick={onClose} aria-label="Cancel selection">
           <XIcon />
         </Button>
         <div />
@@ -67,24 +67,24 @@ export function PhotoSelectionDrawer({ open, onClose, onDelete, onSelectAll, onR
               : "left-[calc(100vw-7rem)] md:left-[calc(100vw-7.5rem)]",
           ].join(" ")}
         >
-          <Button size="icon" variant="ghost" onClick={onSelectAll} aria-label="全选">
+          <Button size="icon" variant="ghost" onClick={onSelectAll} aria-label="Select all photos">
             <CheckCheck />
           </Button>
           {onRestore && (
-            <Button size="icon" variant="ghost" onClick={onRestore} aria-label="恢复">
+            <Button size="icon" variant="ghost" onClick={onRestore} aria-label="Restore photos">
               <RotateCcwIcon />
             </Button>
           )}
-          <Button size="icon" variant="ghost" onClick={onDelete} aria-label="删除">
+          <Button size="icon" variant="ghost" onClick={onDelete} aria-label="Delete photos">
             <Trash2Icon />
           </Button>
           {onAlbumOpen && (
-            <Button size="icon" variant="ghost" onClick={openAlbumDialog} aria-label="加入相册">
+            <Button size="icon" variant="ghost" onClick={openAlbumDialog} aria-label="Add to album">
               <FolderPlusIcon />
             </Button>
           )}
           {onAlbumRemove && (
-            <Button size="icon" variant="ghost" onClick={removeAlbumPhotos} aria-label="移出相册">
+            <Button size="icon" variant="ghost" onClick={removeAlbumPhotos} aria-label="Remove from album">
               <FolderMinusIcon />
             </Button>
           )}

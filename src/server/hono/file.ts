@@ -11,14 +11,24 @@ import { getUserId } from '@/server/security/context';
 import { cors } from 'hono/cors';
 import { buildContentDisposition } from '@/server/lib/file';
 import { FileTypeEnum } from '@/server/enums/file-enum';
+import BizError from '@/server/error/biz-error';
+import { i18nMiddleware, t } from '@/server/i18n';
+import type { HonoEnv } from './type';
 
 // 这个模块处理照片文件读取接口，路径为 /file/{key}。
 
-const file = new Hono();
+const file = new Hono<HonoEnv>();
 file.use('*', cors());
 file.use('*', contextStorage());
+file.use('*', i18nMiddleware);
 file.use('*', security);
-file.onError((err, c) => c.text(err.message, 500));
+file.onError((err, c) => {
+  if (err instanceof BizError) {
+    return c.text(t(err.message), 500);
+  }
+  console.error(err);
+  return c.text(t('system.internalError'), 500);
+});
 
 // 根据文件 key 和当前用户 id 查询对应的文件和照片信息。
 async function getPhotoFile(key: string) {

@@ -14,7 +14,7 @@ async function createLoginToken(userId: string, uuid: string): Promise<string> {
   const secret = process.env.JWT_SECRET;
 
   if (!secret) {
-    throw new BizError('JWT_SECRET 未配置');
+    throw new BizError('system.jwtSecretMissing');
   }
 
   const now = Math.floor(Date.now() / 1000);
@@ -33,7 +33,7 @@ async function verifyLoginToken(token: string | undefined): Promise<LoginTokenPa
   const secret = process.env.JWT_SECRET;
 
   if (!secret) {
-    throw new BizError('JWT_SECRET 未配置');
+    throw new BizError('system.jwtSecretMissing');
   }
 
   try {

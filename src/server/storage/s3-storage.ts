@@ -18,7 +18,7 @@ class S3StorageStrategy implements StorageStrategy {
     const secretAccessKey = storage.secretKey?.trim();
 
     if (!endpoint || !accessKeyId || !secretAccessKey) {
-      throw new BizError('S3 配置不完整');
+      throw new BizError('s3.configIncomplete');
     }
 
     return new S3Client({
@@ -67,7 +67,7 @@ class S3StorageStrategy implements StorageStrategy {
     const bucket = storage.bucket?.trim();
 
     if (!bucket) {
-      throw new BizError('S3 桶名称不能为空');
+      throw new BizError('s3.bucketRequired');
     }
 
     for (const file of files) {
@@ -89,7 +89,7 @@ class S3StorageStrategy implements StorageStrategy {
     const bucket = storage.bucket?.trim();
 
     if (!bucket) {
-      throw new BizError('S3 桶名称不能为空');
+      throw new BizError('s3.bucketRequired');
     }
 
     const res = await client.send(new GetObjectCommand({
@@ -98,7 +98,7 @@ class S3StorageStrategy implements StorageStrategy {
     }));
 
     if (!res.Body) {
-      throw new BizError('S3 文件读取失败');
+      throw new BizError('s3.readFailed');
     }
 
     return {
@@ -120,7 +120,7 @@ class S3StorageStrategy implements StorageStrategy {
     const bucket = storage.bucket?.trim();
 
     if (!bucket) {
-      throw new BizError('S3 桶名称不能为空');
+      throw new BizError('s3.bucketRequired');
     }
 
     await client.send(new DeleteObjectsCommand({

@@ -22,12 +22,14 @@ import {
 } from "@/components/ui/sidebar"
 import { storageAdd, storageDelete, storageList, storageSet, storageSetTop, storageToggleStatus } from "@/request/storage"
 import { type Storage, type StorageInto } from "@/server/entity/storage"
-import { getStorageColumns } from "@/components/storage/storage-columns";
+import { useStorageColumns } from "@/components/storage/storage-columns";
 import { type StorageVo } from "@/server/entity/vo/storage";
 import { useStorageContext } from "@/app/storage/provider"
 import { useApp } from "@/app/provider"
+import { useTranslations } from "next-intl"
 
 export default function Page() {
+  const t = useTranslations("storage")
   const { initialStorageList } = useStorageContext()
   const { sidebarOpen, setSidebarOpen, refreshStorages } = useApp()
   // data 保存当前表格展示的存储配置列表。
@@ -120,7 +122,7 @@ export default function Page() {
     }
 
     storageSet(nextStorage).then(() => {
-      toast.success("修改成功")
+      toast.success(t("updated"))
       void refreshStorageData()
     })
   }
@@ -159,7 +161,7 @@ export default function Page() {
     }
   }
 
-  const columns = getStorageColumns({
+  const columns = useStorageColumns({
     onEdit: openEditStorage,
     onSetTop: setTopStorage,
     onToggleStatus: toggleStorageStatus,
@@ -182,7 +184,7 @@ export default function Page() {
               <Breadcrumb>
                 <BreadcrumbList>
                   <BreadcrumbItem>
-                    <BreadcrumbPage>储存</BreadcrumbPage>
+                    <BreadcrumbPage>{t("title")}</BreadcrumbPage>
                   </BreadcrumbItem>
                 </BreadcrumbList>
               </Breadcrumb>
@@ -195,7 +197,7 @@ export default function Page() {
               action={
                 <Button type="button" onClick={openAddStorage}>
                   <Plus />
-                  新增
+                  {t("add")}
                 </Button>
               }
             ></DataTable>
@@ -203,14 +205,14 @@ export default function Page() {
         </SidebarInset>
       </SidebarProvider>
       <StorageAddDialog
-        title="添加存储"
+        title={t("addTitle")}
         open={addOpen}
         onOpenChange={setAddOpen}
         onStorageConfirm={addStorage}
       />
       {editingStorage && (
         <StorageAddDialog
-          title="修改储存"
+          title={t("editTitle")}
           open={editOpen}
           storage={editingStorage}
           onOpenChange={handleEditOpenChange}
@@ -220,8 +222,8 @@ export default function Page() {
       <AlertDialogDestructive
         open={deleteOpen}
         onOpenChange={handleDeleteOpenChange}
-        title="确定删除储存？"
-        description="删除存储后关联的照片将无法访问"
+        title={t("deleteTitle")}
+        description={t("deleteDescription")}
         onConfirm={confirmDeleteStorage}
       />
     </>

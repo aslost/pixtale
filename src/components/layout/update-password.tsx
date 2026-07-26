@@ -5,6 +5,7 @@ import { useState } from "react"
 import { Dialog } from "@/components/common/dialog"
 import { Input } from "@/components/ui/input"
 import { userSetUserPassword } from "@/request/user"
+import { useTranslations } from "next-intl"
 
 interface UpdatePasswordProps {
   open: boolean
@@ -13,6 +14,7 @@ interface UpdatePasswordProps {
 
 // 渲染当前用户修改密码弹窗。
 export function UpdatePassword({ open, onOpenChange }: UpdatePasswordProps) {
+  const t = useTranslations("layout.password")
   // password 保存当前输入的新密码。
   const [password, setPassword] = useState("")
   // confirmPassword 保存当前输入的确认密码。
@@ -54,17 +56,17 @@ export function UpdatePassword({ open, onOpenChange }: UpdatePasswordProps) {
     const nextConfirmPassword = confirmPassword.trim()
 
     if (!nextPassword) {
-      setError("请输入密码")
+      setError(t("passwordRequired"))
       return
     }
 
     if (!nextConfirmPassword) {
-      setError("请输入确认密码")
+      setError(t("confirmationRequired"))
       return
     }
 
     if (nextPassword !== nextConfirmPassword) {
-      setError("两次输入的密码不一致")
+      setError(t("passwordMismatch"))
       return
     }
 
@@ -77,7 +79,7 @@ export function UpdatePassword({ open, onOpenChange }: UpdatePasswordProps) {
 
   return (
     <Dialog
-      title="修改密码"
+      title={t("title")}
       className="w-full sm:max-w-sm"
       open={open}
       showCloseButton={false}
@@ -89,7 +91,7 @@ export function UpdatePassword({ open, onOpenChange }: UpdatePasswordProps) {
           name="new-password"
           autoComplete="new-password"
           value={password}
-          placeholder="新密码"
+          placeholder={t("newPassword")}
           type="password"
           aria-invalid={Boolean(error)}
           className="mb-1"
@@ -99,7 +101,7 @@ export function UpdatePassword({ open, onOpenChange }: UpdatePasswordProps) {
           name="new-password"
           autoComplete="new-password"
           value={confirmPassword}
-          placeholder="确认密码"
+          placeholder={t("confirmPassword")}
           type="password"
           aria-invalid={Boolean(error)}
           onChange={(event) => updateConfirmPassword(event.target.value)}

@@ -2,6 +2,7 @@
 
 import { useState, type KeyboardEvent } from "react"
 import { Plus } from "lucide-react"
+import { useTranslations } from "next-intl"
 
 import { Dialog } from "@/components/common/dialog"
 import { Button } from "@/components/ui/button"
@@ -14,6 +15,7 @@ interface AlbumAddDialogProps {
 
 // 渲染新增相册弹窗，并在确认后把相册名交给父组件。
 export function AlbumAddDialog({ title, onNameConfirm }: AlbumAddDialogProps) {
+  const t = useTranslations("albums")
   const [open, setOpen] = useState(false)
   const [name, setName] = useState("")
 
@@ -65,7 +67,7 @@ export function AlbumAddDialog({ title, onNameConfirm }: AlbumAddDialogProps) {
     >
       <Input
         value={name}
-        placeholder="请输入相册名称"
+        placeholder={t("namePlaceholder")}
         onChange={(event) => setName(event.target.value)}
         onKeyDown={handleInputKeyDown}
       />

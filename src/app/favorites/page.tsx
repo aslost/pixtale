@@ -25,6 +25,7 @@ import { useFavoriteContext } from "@/app/favorites/provider"
 import { useApp } from "@/app/provider"
 import { PhotoDateDrawer } from "@/components/photo/photo-date-drawer"
 import { PhotoMasonrySkeleton } from "@/components/photo/photo-masonry-skeleton"
+import { useTranslations } from "next-intl"
 
 const AlbumSelectDialog = dynamic(
   () => import("@/components/album/album-select-dialog").then((mod) => mod.AlbumSelectDialog),
@@ -37,6 +38,7 @@ const PhotoViewer = dynamic(
 )
 
 export default function Page() {
+  const t = useTranslations("favorites")
   const { initialPhotos } = useFavoriteContext()
   const { sidebarOpen, setSidebarOpen, refreshAlbums } = useApp()
   // isBrowser 标记当前是否在浏览器环境，SSR 阶段显示骨架屏。
@@ -141,7 +143,7 @@ export default function Page() {
                 <BreadcrumbList>
                   <BreadcrumbItem>
                     <BreadcrumbPage className="flex items-center gap-2">
-                      <span>收藏</span>
+                      <span>{t("title")}</span>
                     </BreadcrumbPage>
                   </BreadcrumbItem>
                 </BreadcrumbList>

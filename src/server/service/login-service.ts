@@ -37,23 +37,23 @@ const loginService = {
   async login(params: LoginBo): Promise<string> {
 
     if (!params.username?.trim() || !params.password?.trim()) {
-      throw new BizError("用户名和密码不能为空");
+      throw new BizError("login.credentialsRequired");
     }
 
     const [user] = await orm.select().from(userTab).where(eq(userTab.username, params.username)).limit(1);
 
     if (!user) {
-      throw new BizError("用户名或密码错误");
+      throw new BizError("login.invalidCredentials");
     }
 
     if (user.status === UserStatusEnum.DISABLE) {
-      throw new BizError("用户已被禁用");
+      throw new BizError("user.disabled");
     }
 
     const isValidPassword = await verifyPassword(params.password, user.salt, user.password);
 
     if (!isValidPassword) {
-      throw new BizError("用户名或密码错误");
+      throw new BizError("login.invalidCredentials");
     }
 
     const uuid = await this.saveAuthInfo(user);

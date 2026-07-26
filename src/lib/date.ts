@@ -26,7 +26,7 @@ function parseUtcTime(value: string) {
 }
 
 // 格式化照片拍摄时间为本地日期，用于列表展示。
-function formatPhotoTakenDate(takenTime: string | null | undefined) {
+function formatPhotoTakenDate(takenTime: string | null | undefined, locale = "zh") {
   if (!takenTime) {
     return null
   }
@@ -36,16 +36,16 @@ function formatPhotoTakenDate(takenTime: string | null | undefined) {
     return null
   }
 
-  const year = date.getFullYear()
-  const month = date.getMonth() + 1
-  const day = date.getDate()
-  const weekday = new Intl.DateTimeFormat("zh-CN", { weekday: "long" }).format(date)
-
-  return `${year}年${month}月${day}日 ${weekday}`
+  return new Intl.DateTimeFormat(locale, {
+    year: "numeric",
+    month: "long",
+    day: "numeric",
+    weekday: "long",
+  }).format(date)
 }
 
 // 格式化照片拍摄时间为本地日期时间，用于详情展示。
-function formatPhotoTakenDateTime(takenTime: string | null | undefined) {
+function formatPhotoTakenDateTime(takenTime: string | null | undefined, locale = "zh") {
   if (!takenTime) {
     return null
   }
@@ -55,18 +55,19 @@ function formatPhotoTakenDateTime(takenTime: string | null | undefined) {
     return takenTime
   }
 
-  const year = date.getFullYear()
-  const month = date.getMonth() + 1
-  const day = date.getDate()
-  const hour = String(date.getHours()).padStart(2, "0")
-  const minute = String(date.getMinutes()).padStart(2, "0")
-  const second = String(date.getSeconds()).padStart(2, "0")
-
-  return `${year}/${month}/${day} ${hour}:${minute}:${second}`
+  return new Intl.DateTimeFormat(locale, {
+    year: "numeric",
+    month: "2-digit",
+    day: "2-digit",
+    hour: "2-digit",
+    minute: "2-digit",
+    second: "2-digit",
+    hour12: false,
+  }).format(date)
 }
 
 // 格式化回收时间为相对描述。
-function formatRecycleTime(recycleTime?: string | null) {
+function formatRecycleTime(recycleTime?: string | null, locale = "zh") {
   if (!recycleTime) {
     return ""
   }
@@ -81,14 +82,14 @@ function formatRecycleTime(recycleTime?: string | null) {
   const day = 24 * hour
 
   if (diff < hour) {
-    return "1 小时内"
+    return locale === "zh" ? "1 小时内" : "Within 1 hour"
   }
 
   if (diff < day) {
-    return `${Math.floor(diff / hour)} 小时前`
+    return new Intl.RelativeTimeFormat(locale, { numeric: "always" }).format(-Math.floor(diff / hour), "hour")
   }
 
-  return `${Math.floor(diff / day)} 天前`
+  return new Intl.RelativeTimeFormat(locale, { numeric: "always" }).format(-Math.floor(diff / day), "day")
 }
 
 // 读取当前浏览器相对 UTC 的偏移分钟数，东八区为 480。

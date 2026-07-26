@@ -2,6 +2,7 @@
 
 import { useState } from "react"
 import { MoreHorizontalIcon } from "lucide-react"
+import { useTranslations } from "next-intl"
 
 import { Button } from "@/components/ui/button"
 import {
@@ -21,6 +22,7 @@ interface AlbumActionMenuProps {
 
 // 渲染相册卡片右上角的更多操作菜单。
 export function AlbumActionMenu({ shadow = true, onRename, onTop, onDelete }: AlbumActionMenuProps) {
+  const t = useTranslations("albums")
   // open 记录当前下拉菜单是否打开，用于打开时隐藏图标阴影。
   const [open, setOpen] = useState(false)
   const showShadow = shadow && !open
@@ -33,7 +35,7 @@ export function AlbumActionMenu({ shadow = true, onRename, onTop, onDelete }: Al
           size="icon"
           variant="ghost"
           className="size-8 bg-transparent text-white/90 shadow-none hover:bg-transparent hover:text-white"
-          aria-label="更多相册操作"
+          aria-label="More album actions"
         >
           <MoreHorizontalIcon
             style={showShadow ? {
@@ -44,13 +46,13 @@ export function AlbumActionMenu({ shadow = true, onRename, onTop, onDelete }: Al
       </DropdownMenuTrigger>
       <DropdownMenuContent align="end" className="w-24 min-w-24">
         <DropdownMenuItem onSelect={onRename}>
-          重命名
+          {t("actions.rename")}
         </DropdownMenuItem>
         <DropdownMenuItem onSelect={onTop}>
-          置顶
+          {t("actions.pin")}
         </DropdownMenuItem>
         <DropdownMenuItem onSelect={onDelete}>
-          删除
+          {t("actions.delete")}
         </DropdownMenuItem>
       </DropdownMenuContent>
     </DropdownMenu>

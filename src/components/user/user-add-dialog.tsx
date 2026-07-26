@@ -14,6 +14,7 @@ import {
 import { type UserAddBo, type UserSetBo } from "@/server/entity/bo/user"
 import { type UserVo } from "@/server/entity/vo/user"
 import { UserTypeEnum, UserTypeOptions } from "@/server/enums/user-enum"
+import { useTranslations } from "next-intl"
 
 type UserForm = UserAddBo
 type UserFormErrors = Partial<Record<keyof UserForm, string>>
@@ -45,6 +46,11 @@ function createUserForm(user?: UserVo | null): UserForm {
 
 // 渲染新增或编辑用户弹窗，并在确认后把用户信息交给父组件保存。
 export function UserAddDialog({ title, open, user, onOpenChange, onUserConfirm }: UserAddDialogProps) {
+  const t = useTranslations("users")
+  const userTypeOptions = UserTypeOptions.map((option) => ({
+    ...option,
+    label: option.value === UserTypeEnum.ADMIN ? t("admin") : t("user"),
+  }))
   // resetTimerRef 保存关闭动画结束后重置表单的定时器。
   const resetTimerRef = useRef<ReturnType<typeof setTimeout> | null>(null)
   // form 保存当前弹框内的用户表单数据。
@@ -114,15 +120,15 @@ export function UserAddDialog({ title, open, user, onOpenChange, onUserConfirm }
     const nextErrors: UserFormErrors = {}
 
     if (!form.username.trim()) {
-      nextErrors.username = "请输入用户名"
+      nextErrors.username = t("usernameRequired")
     }
 
     if (!form.password.trim() && !user) {
-      nextErrors.password = "请输入密码"
+      nextErrors.password = t("passwordRequired")
     }
 
     if (!form.type) {
-      nextErrors.type = "请选择用户类型"
+      nextErrors.type = t("typeRequired")
     }
 
     setErrors(nextErrors)
@@ -181,10 +187,10 @@ export function UserAddDialog({ title, open, user, onOpenChange, onUserConfirm }
     >
       <div className="grid gap-4">
         <div className="grid gap-2">
-          <label className="text-sm font-medium">用户名</label>
+          <label className="text-sm font-medium">{t("username")}</label>
           <Input
             value={form.username}
-            placeholder="请输入用户名"
+            placeholder={t("usernamePlaceholder")}
             autoComplete="off"
             name="username"
             aria-invalid={Boolean(errors.username)}
@@ -194,10 +200,10 @@ export function UserAddDialog({ title, open, user, onOpenChange, onUserConfirm }
         </div>
 
         <div className="grid gap-2">
-          <label className="text-sm font-medium">密码</label>
+          <label className="text-sm font-medium">{t("password")}</label>
           <Input
             value={form.password}
-            placeholder={user ? "新密码" : "请输入密码"}
+            placeholder={user ? t("newPassword") : t("passwordPlaceholder")}
             type="password"
             autoComplete="new-password"
             name="new-password"
@@ -208,13 +214,13 @@ export function UserAddDialog({ title, open, user, onOpenChange, onUserConfirm }
         </div>
 
         <div className="grid gap-2">
-          <label className="text-sm font-medium">类型</label>
+          <label className="text-sm font-medium">{t("type")}</label>
           <Select value={String(form.type)} onValueChange={updateType}>
             <SelectTrigger className="w-full" aria-invalid={Boolean(errors.type)}>
-              <SelectValue placeholder="请选择用户类型" />
+              <SelectValue placeholder={t("typePlaceholder")} />
             </SelectTrigger>
             <SelectContent>
-              {UserTypeOptions.map((option) => (
+              {userTypeOptions.map((option) => (
                 <SelectItem key={option.value} value={String(option.value)}>
                   {option.label}
                 </SelectItem>

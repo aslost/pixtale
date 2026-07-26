@@ -2,6 +2,7 @@
 
 import type * as React from "react"
 import { Trash2Icon } from "lucide-react"
+import { useTranslations } from "next-intl"
 
 import {
   AlertDialog,
@@ -30,11 +31,13 @@ export function AlertDialogDestructive({
   title,
   description,
   trigger,
-  confirmText = "删除",
-  cancelText = "取消",
+  confirmText,
+  cancelText,
   onConfirm,
   ...props
 }: AlertDialogDestructiveProps) {
+  const t = useTranslations("common")
+
   return (
     <AlertDialog {...props}>
       {trigger && <AlertDialogTrigger asChild>{trigger}</AlertDialogTrigger>}
@@ -47,9 +50,9 @@ export function AlertDialogDestructive({
           <AlertDialogDescription>{description}</AlertDialogDescription>
         </AlertDialogHeader>
         <AlertDialogFooter>
-          <AlertDialogCancel variant="outline">{cancelText}</AlertDialogCancel>
+          <AlertDialogCancel variant="outline">{cancelText ?? t("cancel")}</AlertDialogCancel>
           <AlertDialogAction variant="destructive" onClick={onConfirm}>
-            {confirmText}
+            {confirmText ?? t("delete")}
           </AlertDialogAction>
         </AlertDialogFooter>
       </AlertDialogContent>

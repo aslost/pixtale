@@ -6,6 +6,7 @@ import Cropper, { type Area, type Point } from "react-easy-crop"
 import { Dialog } from "@/components/common/dialog"
 import { Slider } from "@/components/ui/slider"
 import { userSetAvatar } from "@/request/user"
+import { useTranslations } from "next-intl"
 
 interface AvatarUploadProps {
   open: boolean
@@ -57,6 +58,7 @@ async function getCroppedAvatar(src: string, crop: Area) {
 
 // 渲染头像上传和裁剪弹框。
 export function AvatarUpload({ open, image, onOpenChange, onAvatarChange }: AvatarUploadProps) {
+  const t = useTranslations("layout.avatar")
 
   // cropperImage 延迟绑定给 Cropper，避免弹框布局未稳定时提前测量。
   const [cropperImage, setCropperImage] = useState("")
@@ -104,7 +106,7 @@ export function AvatarUpload({ open, image, onOpenChange, onAvatarChange }: Avat
     <Dialog
       open={open}
       onOpenChange={onOpenChange}
-      title="更换头像"
+      title={t("title")}
       showCloseButton={false}
       contentClassName="sm:max-w-md"
       onConfirm={saveAvatar}
@@ -132,7 +134,7 @@ export function AvatarUpload({ open, image, onOpenChange, onAvatarChange }: Avat
           max={3}
           step={0.01}
           value={[zoom]}
-          aria-label="头像缩放"
+          aria-label="Adjust profile picture zoom"
           onValueChange={(value) => setZoom(value[0] ?? 1)}
         />
       </div>

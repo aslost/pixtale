@@ -2,6 +2,7 @@
 
 import { type ReactNode, useState } from "react"
 import { Columns2 } from "lucide-react"
+import { useTranslations } from "next-intl"
 import {
   ColumnDef,
   ColumnFiltersState,
@@ -69,6 +70,7 @@ export function DataTable<TData, TValue>({
   data,
   action,
 }: DataTableProps<TData, TValue>) {
+  const t = useTranslations("storage")
   const [columnFilters, setColumnFilters] = useState<ColumnFiltersState>([])
   const [sorting, setSorting] = useState<SortingState>([])
   const [columnVisibility, setColumnVisibility] = useState<VisibilityState>({})
@@ -93,7 +95,7 @@ export function DataTable<TData, TValue>({
     <div className="space-y-3">
       <div className="flex items-center justify-between gap-3">
         <Input
-          placeholder="搜索名称"
+          placeholder={t("searchPlaceholder")}
           value={(table.getColumn("name")?.getFilterValue() as string) ?? ""}
           onChange={(event) => table.getColumn("name")?.setFilterValue(event.target.value)}
           className="max-w-xs"
@@ -104,7 +106,7 @@ export function DataTable<TData, TValue>({
             <DropdownMenuTrigger asChild>
               <Button type="button" variant="outline" className="bg-white text-foreground hover:bg-muted">
                 <Columns2 />
-                视图
+                {t("view")}
               </Button>
             </DropdownMenuTrigger>
             <DropdownMenuContent align="end">

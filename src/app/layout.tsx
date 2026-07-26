@@ -1,6 +1,8 @@
 import { cookies } from "next/headers"
 import { Geist } from "next/font/google"
 import { type Metadata } from "next"
+import { NextIntlClientProvider } from "next-intl"
+import { getLocale, getMessages } from "next-intl/server"
 
 import { Provider, type Theme } from "@/app/provider"
 import { getLoginInfo } from "@/lib/cookie"
@@ -39,19 +41,22 @@ export default async function RootLayout({ children }: RootLayoutProps) {
   const { userId } = await getLoginInfo(cookieStore.toString())
   const userInfo = userId ? await userService.getById(userId) : null
   const title = process.env.TITLE || "Pixtale"
+  const [locale, messages] = await Promise.all([getLocale(), getMessages()])
 
   return (
-    <html lang="en" className={`${geist.variable} ${defaultTheme}`} suppressHydrationWarning>
+    <html lang={locale} className={`${geist.variable} ${defaultTheme}`} suppressHydrationWarning>
       <head />
       <body>
-        <Provider
-          defaultTheme={defaultTheme}
-          defaultSidebarOpen={defaultSidebarOpen}
-          initialUserInfo={userInfo}
-          title={title}
-        >
-          {children}
-        </Provider>
+        <NextIntlClientProvider messages={messages}>
+          <Provider
+            defaultTheme={defaultTheme}
+            defaultSidebarOpen={defaultSidebarOpen}
+            initialUserInfo={userInfo}
+            title={title}
+          >
+            {children}
+          </Provider>
+        </NextIntlClientProvider>
       </body>
     </html>
   )

@@ -8,6 +8,7 @@ import { formatPhotoTakenDateTime } from "@/lib/date"
 import { getThumbHashUrl } from "@/lib/thumb-hash"
 import { formatPhotoLocation, getPhotoColorSpace, getPhotoDeviceParams, getPhotoShootingParams, getPhotoSoftware, getPhotoTimezone } from "@/lib/viewer-field"
 import { type PhotoVo } from "@/server/entity/vo/photo"
+import { useLocale, useTranslations } from "next-intl"
 
 type PhotoInfoSidebarProps = {
   // 当前查看的照片。
@@ -21,13 +22,15 @@ type PhotoViewerBlurBackgroundProps = {
   thumbHash?: string | null
 }
 
-// 格式化存储位置：存储名(类型)。
-function formatStorageLocation(photo: PhotoVo) {
+// 格式化存储位置：存储名(翻译后的类型)。
+function formatStorageLocation(photo: PhotoVo, t: (key: string) => string) {
   if (!photo.storageName && !photo.storageTypeDesc) {
     return null
   }
 
-  return `${photo.storageName ?? "-"} (${photo.storageTypeDesc ?? "-"})`
+  const type = photo.storageTypeDesc ? t(photo.storageTypeDesc) : "-"
+
+  return `${photo.storageName ?? "-"} (${type})`
 }
 
 // 格式化照片名称，去掉文件后缀。
@@ -121,13 +124,16 @@ function SidebarCloseButton({ onClose }: { onClose: () => void }) {
       {...tap}
     >
       <XIcon />
-      <span className="sr-only">关闭</span>
+      <span className="sr-only">Close</span>
     </Button>
   )
 }
 
 // 渲染照片信息侧栏，固定在 Lightbox 右侧。
 export function PhotoInfoSidebar({ photo, onClose }: PhotoInfoSidebarProps) {
+  const t = useTranslations("photos.info")
+  const storageT = useTranslations("storage")
+  const locale = useLocale()
   const deviceParams = photo ? getPhotoDeviceParams(photo.exif) : []
   const shootingParams = photo ? getPhotoShootingParams(photo.exif) : []
 
@@ -136,40 +142,40 @@ export function PhotoInfoSidebar({ photo, onClose }: PhotoInfoSidebarProps) {
       {onClose && <SidebarCloseButton onClose={onClose} />}
       {photo && (
         <div className="text-left">
-          <div className="px-4 pt-6.5 md:pt-4.5 text-sm font-medium">基本信息</div>
+          <div className="px-4 pt-6.5 md:pt-4.5 text-sm font-medium">{t("basicInformation")}</div>
           <div className="space-y-1.5 px-4 py-2">
-            <PhotoInfoRow label="文件名" value={formatPhotoName(photo.name)} />
-            <PhotoInfoRow label="文件类型" value={photo.typeDesc.toUpperCase()} />
-            <PhotoInfoRow label="文件大小" value={formatFileSize(photo.size)} />
-            <PhotoInfoRow label="分辨率" value={formatResolution(photo.width, photo.height)} />
-            <PhotoInfoRow label="像素" value={formatMegapixels(photo.width, photo.height)} />
-            <PhotoInfoRow label="色彩空间" value={getPhotoColorSpace(photo.exif)} />
-            <PhotoInfoRow label="时间日期" value={formatPhotoTakenDateTime(photo.takenTime)} />
-            <PhotoInfoRow label="时区" value={getPhotoTimezone(photo.exif)} />
+            <PhotoInfoRow label={t("fileName")} value={formatPhotoName(photo.name)} />
+            <PhotoInfoRow label={t("format")} value={photo.typeDesc.toUpperCase()} />
+            <PhotoInfoRow label={t("fileSize")} value={formatFileSize(photo.size)} />
+            <PhotoInfoRow label={t("resolution")} value={formatResolution(photo.width, photo.height)} />
+            <PhotoInfoRow label={t("megapixels")} value={formatMegapixels(photo.width, photo.height)} />
+            <PhotoInfoRow label={t("colorSpace")} value={getPhotoColorSpace(photo.exif, t("uncalibrated"))} />
+            <PhotoInfoRow label={t("dateTime")} value={formatPhotoTakenDateTime(photo.takenTime, locale)} />
+            <PhotoInfoRow label={t("timeZone")} value={getPhotoTimezone(photo.exif)} />
             <PhotoInfoRow
-              label="位置"
+              label={t("location")}
               value={formatPhotoLocation(photo.latitude, photo.longitude, photo.altitude)}
               wrap
             />
-            <PhotoInfoRow label="软件" value={getPhotoSoftware(photo.exif)} wrap />
-            <PhotoInfoRow label="存储空间" value={formatStorageLocation(photo)} />
+            <PhotoInfoRow label={t("software")} value={getPhotoSoftware(photo.exif)} wrap />
+            <PhotoInfoRow label={t("storage")} value={formatStorageLocation(photo, storageT)} />
           </div>
           {shootingParams.length > 0 && (
             <>
-              <div className="px-4 pt-3 text-sm font-medium">拍摄参数</div>
+              <div className="px-4 pt-3 text-sm font-medium">{t("cameraSettings")}</div>
               <div className="space-y-1.5 px-4 py-2">
                 {shootingParams.map((item) => (
-                  <PhotoInfoRow key={item.label} label={item.label} value={item.value} />
+                  <PhotoInfoRow key={item.key} label={t(item.key)} value={item.value} />
                 ))}
               </div>
             </>
           )}
           {deviceParams.length > 0 && (
             <>
-              <div className="px-4 pt-3 text-sm font-medium">设备</div>
+              <div className="px-4 pt-3 text-sm font-medium">{t("device")}</div>
               <div className="space-y-1.5 px-4 py-2">
                 {deviceParams.map((item) => (
-                  <PhotoInfoRow key={item.label} label={item.label} value={item.value} wrap={item.wrap} />
+                  <PhotoInfoRow key={item.key} label={t(item.key)} value={item.value} wrap={item.wrap} />
                 ))}
               </div>
             </>

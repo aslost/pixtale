@@ -56,7 +56,7 @@ async function security(c: Context, next: Next) {
 
   if (!userId || !uuid) {
     clearLoginCookies(c);
-    throw new BizError('身份认证失败', 401);
+    throw new BizError('auth.failed', 401);
   }
 
   // 从缓存读取登录信息，并确认当前 uuid 仍有效。
@@ -64,11 +64,11 @@ async function security(c: Context, next: Next) {
 
   if (!authInfo || !authInfo.uuidList.includes(uuid)) {
     clearLoginCookies(c);
-    throw new BizError('身份认证失败', 401);
+    throw new BizError('auth.failed', 401);
   }
 
   if (isSystemPath(path) && authInfo.type === UserTypeEnum.NORMAL) {
-    throw new BizError('权限不足', 403);
+    throw new BizError('auth.forbidden', 403);
   }
 
   setUserId(authInfo.userId);

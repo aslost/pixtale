@@ -84,7 +84,7 @@ const albumService = {
     const name = params.name?.trim();
 
     if (!name) {
-      throw new BizError('相册名不能为空');
+      throw new BizError('album.nameRequired');
     }
 
     const [existsAlbum] = await orm
@@ -97,7 +97,7 @@ const albumService = {
       .limit(1);
 
     if (existsAlbum) {
-      throw new BizError('相册名已存在');
+      throw new BizError('album.nameExists');
     }
 
     const now = new Date().toISOString();
@@ -118,11 +118,11 @@ const albumService = {
   async addPhoto(params: AlbumAddPhotoBo, userId: string): Promise<void> {
 
     if (!params.photoIds?.length) {
-      throw new BizError('请选择照片');
+      throw new BizError('photo.selectRequired');
     }
 
     if (!params.albumIds?.length) {
-      throw new BizError('请选择相册');
+      throw new BizError('album.selectRequired');
     }
 
     const photos = await orm
@@ -170,11 +170,11 @@ const albumService = {
   async removePhoto(params: AlbumRemovePhotoBo, userId: string): Promise<void> {
 
     if (!params.albumId) {
-      throw new BizError('请选择相册');
+      throw new BizError('album.selectRequired');
     }
 
     if (!params.photoIds?.length) {
-      throw new BizError('请选择照片');
+      throw new BizError('photo.selectRequired');
     }
 
     const [album] = await orm
@@ -204,7 +204,7 @@ const albumService = {
     const name = params.name?.trim();
 
     if (!name) {
-      throw new BizError('相册名不能为空');
+      throw new BizError('album.nameRequired');
     }
 
     await orm.update(albumTab)
@@ -295,7 +295,7 @@ const albumService = {
 
     return {
       albumId: 'trash',
-      name: '回收站',
+      name: 'trash.title',
       description: '',
       sort: 0,
       createTime: now,

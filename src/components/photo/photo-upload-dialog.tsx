@@ -30,6 +30,7 @@ import { createPhotoCover } from "@/lib/upload-cover"
 import { useStorageStore } from "@/store/storage-store"
 import { usePhotoStore } from "@/store/photo-store"
 import { type PhotoAddResultVo } from "@/server/entity/vo/photo"
+import { useTranslations } from "next-intl"
 
 type UploadStatus = "new" | "waiting" | "uploading" | "success" | "failed" | "skipped"
 
@@ -107,6 +108,7 @@ function uploadPhotoAdd(
 
 // 渲染照片上传弹窗。
 export function PhotoUploadDialog() {
+  const t = useTranslations("photos.upload")
   const fileInputRef = useRef<HTMLInputElement>(null) // 文件选择 input，用于触发系统文件选择器。
   const previewsRef = useRef<UploadPreview[]>([]) // 保存照片预览和上传状态列表。
   const uploadQueueRef = useRef<UploadPreview[]>([]) // 保存待上传照片队列，支持上传中继续追加照片。
@@ -215,7 +217,7 @@ export function PhotoUploadDialog() {
         try {
           await addPhoto(file)
         } catch {
-          toast.error(`${file.name} 预览生成失败`)
+          toast.error(t("previewFailed", { name: file.name }))
         }
       }
     }
@@ -359,7 +361,7 @@ export function PhotoUploadDialog() {
   function startUpload() {
 
     if (!selectedStorageId && previewsRef.current.length > 0) {
-      toast.error("无效存储")
+      toast.error(t("invalidStorage"))
       return
     }
 
@@ -388,9 +390,9 @@ export function PhotoUploadDialog() {
     <Dialog open={open} onOpenChange={handleOpenChange}>
       <DialogContent className="grid h-[80vh] max-h-[720px] min-h-0 grid-rows-[auto_minmax(0,1fr)_auto] sm:max-w-2xl">
         <DialogHeader>
-          <DialogTitle>照片上传</DialogTitle>
+          <DialogTitle>{t("title")}</DialogTitle>
           <DialogDescription className="sr-only">
-            选择照片并上传到当前照片列表。
+            Select photos to upload to the current photo list.
           </DialogDescription>
         </DialogHeader>
         <div className="min-h-0 overflow-y-auto [scrollbar-width:thin]">
@@ -433,7 +435,7 @@ export function PhotoUploadDialog() {
               onClick={openFilePicker}
             >
               <PlusIcon />
-              <span className="sr-only">添加照片</span>
+              <span className="sr-only">Add photos</span>
             </button>
           </div>
         </div>
@@ -453,7 +455,7 @@ export function PhotoUploadDialog() {
               disabled={uploading}
             >
               <SelectTrigger className="w-40">
-                <SelectValue placeholder="选择储存" />
+                <SelectValue placeholder={t("selectStorage")} />
               </SelectTrigger>
               <SelectContent>
                 {storages.map((storage) => (
@@ -465,7 +467,7 @@ export function PhotoUploadDialog() {
             </Select>
             <Popover>
               <PopoverTrigger asChild>
-                <Button type="button" variant="ghost" size="icon" aria-label="上传设置">
+                <Button type="button" variant="ghost" size="icon" aria-label="Upload settings">
                   <SettingsIcon className="size-4" />
                 </Button>
               </PopoverTrigger>
@@ -477,11 +479,11 @@ export function PhotoUploadDialog() {
           <div className="flex items-center gap-2">
             {!uploading && (
               <Button type="button" variant="secondary" onClick={resetUpload}>
-                清除
+                {t("clear")}
               </Button>
             )}
             <Button type="button" onClick={handleUploadAction}>
-              {uploading ? "暂停" : "开始"}
+              {uploading ? t("pause") : t("start")}
             </Button>
           </div>
         </DialogFooter>

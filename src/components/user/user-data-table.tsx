@@ -2,6 +2,7 @@
 
 import { type ReactNode, useState } from "react"
 import { Columns2 } from "lucide-react"
+import { useTranslations } from "next-intl"
 import {
   ColumnDef,
   ColumnFiltersState,
@@ -70,6 +71,7 @@ export function DataTable<TData, TValue>({
   data,
   action,
 }: DataTableProps<TData, TValue>) {
+  const t = useTranslations("users")
   const [columnFilters, setColumnFilters] = useState<ColumnFiltersState>([])
   const [sorting, setSorting] = useState<SortingState>([])
   const [columnVisibility, setColumnVisibility] = useState<VisibilityState>({})
@@ -97,7 +99,7 @@ export function DataTable<TData, TValue>({
           type="search"
           name="search"
           autoComplete="off"
-          placeholder="搜索用户名"
+          placeholder={t("searchPlaceholder")}
           value={(table.getColumn("username")?.getFilterValue() as string) ?? ""}
           onChange={(event) => table.getColumn("username")?.setFilterValue(event.target.value)}
           className="max-w-xs"
@@ -108,7 +110,7 @@ export function DataTable<TData, TValue>({
             <DropdownMenuTrigger asChild>
               <Button type="button" variant="outline" className="bg-white text-foreground hover:bg-muted">
                 <Columns2 />
-                视图
+                {t("view")}
               </Button>
             </DropdownMenuTrigger>
             <DropdownMenuContent align="end">

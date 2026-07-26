@@ -14,6 +14,7 @@ import { Slider } from "@/components/ui/slider"
 import { getLocalTzOffsetMin } from "@/lib/date"
 import { photoTakenDateList } from "@/request/photo"
 import { type PhotoTakenDateVo } from "@/server/entity/vo/photo"
+import { useTranslations } from "next-intl"
 
 interface PhotoDateDrawerProps {
   // albumId 传入时按相册筛选时间范围。
@@ -43,6 +44,7 @@ function formatDate(date: Date) {
 
 // 渲染照片页按天选择时间范围的右侧抽屉。
 function PhotoDateDrawer({ albumId, favorite, onRangeChange }: PhotoDateDrawerProps) {
+  const t = useTranslations("photos")
   const [dateList, setDateList] = useState<PhotoTakenDateVo[]>([]) // dateList 保存存在照片的日期及照片数量。
   const [open, setOpen] = useState(false) // open 控制时间选择抽屉是否打开。
   const [savedDateRange, setSavedDateRange] = useState([0, 0]) // savedDateRange 保存上次确认的日期索引范围。
@@ -131,7 +133,7 @@ function PhotoDateDrawer({ albumId, favorite, onRangeChange }: PhotoDateDrawerPr
         className="h-dvh !w-38 md:!w-35 !rounded-none pr-9 md:pr-6 pb-8 pt-15 sm:max-w-none"
         onPointerDownOutside={saveRange}
       >
-        <div className="absolute top-4 left-4">选择时间</div>
+        <div className="absolute top-4 left-4">{t("selectDateRange")}</div>
         <DrawerClose asChild>
           <Button
             type="button"
@@ -140,7 +142,7 @@ function PhotoDateDrawer({ albumId, favorite, onRangeChange }: PhotoDateDrawerPr
             className="absolute top-3 right-6 md:right-3"
           >
             <XIcon />
-            <span className="sr-only">关闭</span>
+            <span className="sr-only">Close</span>
           </Button>
         </DrawerClose>
         <div className="relative h-full min-h-0 w-full">
