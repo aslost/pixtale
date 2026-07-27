@@ -57,9 +57,30 @@ docker run \
 
 把上面的 `ADMIN` `PASSWORD` `JWT_SECRET` 改成你自己的，然后运行
 
-#### Windos运行
+### 本地开发
 
-在 [Releases](https://github.com/pixtalelab/pixtale/releases) 下载 `pixtale-windos.zip`, 解压后在 `.env` 里面配置环境变量，双击 `start.bat` 运行
+#### 环境要求 
+
+- Nodejs 24+
+
+
+#### 安装依赖
+
+```yaml
+pnpm i
+```
+
+#### 配置环境
+
+```yaml
+cp .env.example .env
+```
+
+#### 启动服务
+
+```yaml
+pnpm run dev
+```
 
 ## 环境变量
 

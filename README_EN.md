@@ -54,9 +54,30 @@ docker run \
 
 Replace `ADMIN`, `PASSWORD`, and `JWT_SECRET` with your own secure values, then run the command.
 
-### Windows
+### Local Development
 
-Download `pixtale-windos.zip` from [Releases](https://github.com/pixtalelab/pixtale/releases), extract it, configure the environment variables in `.env`, and double-click `start.bat` to launch Pixtale.
+#### Requirements
+
+- Nodejs 24+
+
+
+#### Install Dependencies
+
+```yaml
+pnpm i
+```
+
+#### Configure Environment
+
+```yaml
+cp .env.example .env
+```
+
+#### Start the Dev Server
+
+```yaml
+pnpm run dev
+```
 
 ## Environment Variables
 
