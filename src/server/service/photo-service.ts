@@ -7,6 +7,7 @@ import BizError from '@/server/error/biz-error';
 import { storage } from '@/server/storage/storage';
 import {
   type PhotoDeleteBo,
+  type PhotoExistsBo,
   type PhotoFavoriteBo,
   type PhotoListBo,
   type PhotoRecycleBo,
@@ -17,7 +18,7 @@ import { PHOTO_LIST_PAGE_SIZE } from '@/server/const/global';
 import { PhotoFavoriteEnum, PhotoStatusEnum } from '@/server/enums/photo-enum';
 import { StorageTypeOptions } from '@/server/enums/storage-enum';
 import { type PageVo } from '@/server/entity/vo/common';
-import { type PhotoAddResultVo, type PhotoTakenDateVo, type PhotoVo } from '@/server/entity/vo/photo';
+import { type PhotoAddResultVo, type PhotoExistsVo, type PhotoTakenDateVo, type PhotoVo } from '@/server/entity/vo/photo';
 import { type Storage } from '@/server/entity/storage';
 import { storageService } from '@/server/service/storage-service';
 import { buildContentDisposition, formatFileTimestamp, splitFileName } from '@/server/lib/file';
@@ -186,6 +187,33 @@ const photoService = {
     return key;
   },
 
+  // 根据去重设置和 SHA-1 判断当前用户是否已有相同文件。
+  async exists(params: PhotoExistsBo, userId: string): Promise<PhotoExistsVo> {
+    const checksum = params.checksum?.trim();
+    const name = params.name?.trim();
+
+    if (!checksum || !name) {
+      return { duplicate: false };
+    }
+
+    const setting = await settingService.get();
+
+    if (setting.photoDedup !== SettingPhotoDedupEnum.ENABLE) {
+      return { duplicate: false };
+    }
+
+    const [duplicatePhoto] = await orm
+      .select({ photoId: photoTab.photoId })
+      .from(photoTab)
+      .where(and(
+        eq(photoTab.userId, userId),
+        eq(photoTab.checksum, checksum)
+      ))
+      .limit(1);
+
+    return { duplicate: Boolean(duplicatePhoto) };
+  },
+
   // 上传单张照片，后端生成 preview、thumbnail 和元信息。
   async add(form: FormData, userId: string): Promise<PhotoAddResultVo> {
 
@@ -211,22 +239,9 @@ const photoService = {
 
     const { buffer, name, size, type } = await this.readPhotoUpload(file);
     const checksum = await fileChecksum(new Blob([buffer]));
-    const setting = await settingService.get();
-    const photoDedup = setting.photoDedup === SettingPhotoDedupEnum.ENABLE;
 
-    if (photoDedup && checksum) {
-      const [duplicatePhoto] = await orm
-        .select({ photoId: photoTab.photoId })
-        .from(photoTab)
-        .where(and(
-          eq(photoTab.userId, userId),
-          eq(photoTab.checksum, checksum)
-        ))
-        .limit(1);
-
-      if (duplicatePhoto) {
-        return { photo: null, duplicate: true };
-      }
+    if ((await this.exists({ checksum, name }, userId)).duplicate) {
+      return { photo: null, duplicate: true };
     }
 
     const images = await processPhotoImages(buffer);

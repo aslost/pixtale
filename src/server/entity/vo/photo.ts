@@ -24,4 +24,8 @@ interface PhotoAddResultVo {
   duplicate: boolean;
 }
 
-export type { PhotoVo, PhotoTakenDateVo, PhotoAddResultVo };
+interface PhotoExistsVo {
+  duplicate: boolean;
+}
+
+export type { PhotoVo, PhotoTakenDateVo, PhotoAddResultVo, PhotoExistsVo };

@@ -29,6 +29,7 @@ import { PhotoUploadSettings, readPhotoUploadSettings } from "@/components/photo
 import { createPhotoCover } from "@/lib/upload-cover"
 import { useStorageStore } from "@/store/storage-store"
 import { usePhotoStore } from "@/store/photo-store"
+import { photoExists } from "@/request/photo"
 import { type PhotoAddResultVo } from "@/server/entity/vo/photo"
 import { useTranslations } from "next-intl"
 
@@ -41,6 +42,15 @@ interface UploadPreview {
   albumId: string | null
   progress: number
   status: UploadStatus
+}
+
+// 在浏览器中计算待上传文件的 SHA-1 校验和。
+async function getFileChecksum(file: File) {
+  const buffer = await crypto.subtle.digest("SHA-1", await file.arrayBuffer())
+
+  return Array.from(new Uint8Array(buffer))
+    .map((byte) => byte.toString(16).padStart(2, "0"))
+    .join("")
 }
 
 // 从上传接口响应中提取错误提示，XML 优先读取 Message 标签。
@@ -263,6 +273,16 @@ export function PhotoUploadDialog() {
     const item = previewsRef.current.find((p) => p.id === preview.id) ?? preview
 
     try {
+      const checksum = await getFileChecksum(item.file)
+      const existsResult = await photoExists({ checksum, name: item.file.name })
+
+      if (existsResult.duplicate) {
+        setPreviews(previewsRef.current.map((p) => (
+          p.id === item.id ? { ...p, progress: 100, status: "skipped" } : p
+        )))
+        return
+      }
+
       if (pausedRef.current) {
         setPreviews(previewsRef.current.map((p) => (
           p.id === item.id ? { ...p, progress: 100, status: "new" } : p

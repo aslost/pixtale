@@ -20,6 +20,11 @@ interface PhotoListBo {
 
 }
 
+interface PhotoExistsBo {
+  checksum: string;
+  name: string;
+}
+
 interface PhotoRecycleBo {
   photoIds: string[];
 }
@@ -40,5 +45,5 @@ interface PhotoDeleteBo {
 
 
 
-export type { PhotoDeleteBo, PhotoFavoriteBo, PhotoListBo, PhotoRecycleBo, PhotoRestoreBo, PhotoTakenDateListBo };
+export type { PhotoDeleteBo, PhotoExistsBo, PhotoFavoriteBo, PhotoListBo, PhotoRecycleBo, PhotoRestoreBo, PhotoTakenDateListBo };
 

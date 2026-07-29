@@ -3,7 +3,7 @@ import { Context } from "hono";
 import result from '@/server/model/result';
 import { photoService } from '@/server/service/photo-service';
 import { getUserId } from "@/server/security/context";
-import { type PhotoDeleteBo, type PhotoFavoriteBo, type PhotoListBo, type PhotoRecycleBo, type PhotoRestoreBo, type PhotoTakenDateListBo } from '@/server/entity/bo/photo';
+import { type PhotoDeleteBo, type PhotoExistsBo, type PhotoFavoriteBo, type PhotoListBo, type PhotoRecycleBo, type PhotoRestoreBo, type PhotoTakenDateListBo } from '@/server/entity/bo/photo';
 
 // 这个模块注册照片相关接口。
 
@@ -24,6 +24,13 @@ app.post('/photo/takenDateList', async (c: Context) => {
 // 上传单张照片，后端生成 preview、thumbnail 和元信息。
 app.post('/photo/add', async (c: Context) => {
   const data = await photoService.add(await c.req.formData(), getUserId());
+  return c.json(result.ok(data));
+})
+
+// 上传前检查当前用户是否已有相同文件。
+app.post('/photo/exists', async (c: Context) => {
+  const body = await c.req.json<PhotoExistsBo>();
+  const data = await photoService.exists(body, getUserId());
   return c.json(result.ok(data));
 })
 

@@ -1,7 +1,7 @@
 import { http } from "@/request/request";
-import { type PhotoDeleteBo, type PhotoFavoriteBo, type PhotoListBo, type PhotoRecycleBo, type PhotoRestoreBo, type PhotoTakenDateListBo } from "@/server/entity/bo/photo";
+import { type PhotoDeleteBo, type PhotoExistsBo, type PhotoFavoriteBo, type PhotoListBo, type PhotoRecycleBo, type PhotoRestoreBo, type PhotoTakenDateListBo } from "@/server/entity/bo/photo";
 import { type PageVo } from "@/server/entity/vo/common";
-import { type PhotoAddResultVo, type PhotoTakenDateVo, type PhotoVo } from "@/server/entity/vo/photo";
+import { type PhotoAddResultVo, type PhotoExistsVo, type PhotoTakenDateVo, type PhotoVo } from "@/server/entity/vo/photo";
 // 这个模块封装照片相关接口请求。
 
 // 分页按条件查询照片列表。
@@ -17,6 +17,11 @@ export function photoTakenDateList(params: PhotoTakenDateListBo) {
 // 上传单张照片。
 export function photoAdd(params: FormData) {
   return http.post<PhotoAddResultVo>('/photo/add', params);
+}
+
+// 上传前检查文件是否已经存在。
+export function photoExists(params: PhotoExistsBo) {
+  return http.post<PhotoExistsVo>('/photo/exists', params);
 }
 
 // 把照片移动到回收站。
