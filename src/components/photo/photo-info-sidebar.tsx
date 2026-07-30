@@ -68,20 +68,22 @@ function PhotoInfoRow({
   label,
   value,
   wrap = false,
+  twoLines = false,
 }: {
   label: string
   value: string | null | undefined
   wrap?: boolean
+  twoLines?: boolean
 }) {
   if (!value) {
     return null
   }
 
   return (
-    <div className={`flex min-w-0 justify-between gap-8 text-left text-sm ${wrap ? "items-start" : "items-center"}`}>
+    <div className={`flex min-w-0 justify-between gap-8 text-left text-sm ${wrap || twoLines ? "items-start" : "items-center"}`}>
       <span className="shrink-0 text-white/60">{label}</span>
       <span
-        className={`min-w-0 flex-1 text-right text-white ${wrap ? "break-words whitespace-normal" : "truncate"}`}
+        className={`min-w-0 flex-1 text-right text-white ${twoLines ? "line-clamp-2 break-all" : wrap ? "break-words whitespace-normal" : "truncate"}`}
         title={wrap ? undefined : value}
       >
         {value}
@@ -144,7 +146,7 @@ export function PhotoInfoSidebar({ photo, onClose }: PhotoInfoSidebarProps) {
         <div className="text-left">
           <div className="px-4 pt-6.5 md:pt-4.5 text-sm font-medium">{t("basicInformation")}</div>
           <div className="space-y-1.5 px-4 py-2">
-            <PhotoInfoRow label={t("fileName")} value={formatPhotoName(photo.name)} />
+            <PhotoInfoRow label={t("fileName")} value={formatPhotoName(photo.name)} twoLines />
             <PhotoInfoRow label={t("format")} value={photo.typeDesc.toUpperCase()} />
             <PhotoInfoRow label={t("fileSize")} value={formatFileSize(photo.size)} />
             <PhotoInfoRow label={t("resolution")} value={formatResolution(photo.width, photo.height)} />
