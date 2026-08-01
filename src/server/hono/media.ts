@@ -15,19 +15,19 @@ import BizError from '@/server/error/biz-error';
 import { i18nMiddleware, t } from '@/server/i18n';
 import type { HonoEnv } from './type';
 
-// 这个模块处理照片文件读取接口，路径为 /file/{key}。
+// 这个模块处理照片媒体读取接口，路径为 /media/{key}。
 
-const file = new Hono<HonoEnv>();
-file.use('*', cors());
-file.use('*', contextStorage());
-file.use('*', i18nMiddleware);
-file.use('*', security);
-file.onError((err, c) => {
+const media = new Hono<HonoEnv>();
+media.use('*', cors());
+media.use('*', contextStorage());
+media.use('*', i18nMiddleware);
+media.use('*', security);
+media.onError((err, c) => {
   if (err instanceof BizError) {
     return c.text(t(err.message), 500);
   }
   console.error(err);
-  return c.text(t('system.internalError'), 500);
+  return c.text(err.message, 500);
 });
 
 // 根据文件 key 和当前用户 id 查询对应的文件和照片信息。
@@ -56,13 +56,13 @@ async function getPhotoFile(key: string) {
   return row;
 }
 
-file.get('*', async (c: Context, next: Next) => {
+media.get('*', async (c: Context, next: Next) => {
 
-  if (!c.req.path.startsWith('/file/')) {
+  if (!c.req.path.startsWith('/media/')) {
     return next();
   }
 
-  const key = decodeURIComponent(c.req.path.slice('/file/'.length));
+  const key = decodeURIComponent(c.req.path.slice('/media/'.length));
 
   const photoFile = await getPhotoFile(key);
 
@@ -85,4 +85,4 @@ file.get('*', async (c: Context, next: Next) => {
   return c.body(obj.body, 200, headers);
 })
 
-export { file };
+export { media };

@@ -105,7 +105,7 @@ const userService = {
       .limit(1);
 
     if (user?.avatar) {
-      await storage.delete(`profile/avatar/${user.avatar}`, 'local');
+      await storage.delete(`profile/${user.avatar}`, 'local');
     }
 
     const avatarKey = `${createId()}.webp`;
@@ -116,7 +116,7 @@ const userService = {
     }
 
     await storage.put([{
-      key: `profile/avatar/${avatarKey}`,
+      key: `profile/${avatarKey}`,
       body: Buffer.from(match[1], 'base64'),
       type: 'image/webp',
     }], 'local');
@@ -141,7 +141,7 @@ const userService = {
     }
 
     try {
-      return await storage.get(`profile/avatar/${key}`, 'local');
+      return await storage.get(`profile/${key}`, 'local');
     } catch {
       return null;
     }
@@ -348,7 +348,7 @@ const userService = {
       .limit(1);
 
     if (user?.avatar) {
-      await storage.delete(`profile/avatar/${user.avatar}`, 'local');
+      await storage.delete(`profile/${user.avatar}`, 'local');
     }
 
     await photoService.recycleByUserId(deleteUserId);

@@ -15,7 +15,7 @@ const PUBLIC_FILE_REG = /\.(?:png|jpg|jpeg|gif|webp|svg|ico)$/i;
 function isPublicPath(pathname: string) {
   return pathname.startsWith('/login')
     || pathname.startsWith('/api')
-    || pathname.startsWith('/file')
+    || pathname.startsWith('/media')
     || pathname.startsWith('/_next')
     || pathname === '/favicon.ico'
     || PUBLIC_FILE_REG.test(pathname);
@@ -94,5 +94,5 @@ export async function proxy(req: NextRequest) {
 }
 
 export const config = {
-  matcher: ['/((?!api|file|_next/static|_next/image|favicon.ico|.*\\.(?:png|jpg|jpeg|gif|webp|svg|ico)$).*)'],
+  matcher: ['/((?!api|media|_next/static|_next/image|favicon.ico|.*\\.(?:png|jpg|jpeg|gif|webp|svg|ico)$).*)'],
 };

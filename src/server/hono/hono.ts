@@ -27,7 +27,6 @@ app.onError((err, c) => {
       return c.json(result.fail(message, err.code), err.code);
     }
 
-    console.log(message);
     return c.json(result.fail(message, err.code));
   }
 
@@ -36,7 +35,7 @@ app.onError((err, c) => {
   }
 
   console.error(err);
-  return c.json(result.fail(t('system.internalError')));
+  return c.json(result.fail(err.message));
 });
 
 export { app };

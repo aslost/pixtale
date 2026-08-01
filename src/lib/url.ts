@@ -18,7 +18,7 @@ function toMediaUrl(key: string, domain?: string | null) {
   const encodedKey = key.split('/').map((segment) => encodeURIComponent(segment)).join('/');
   const base = formatHttpUrl(domain);
 
-  return base ? `${base}/${encodedKey}` : `/file/${encodedKey}`;
+  return base ? `${base}/${encodedKey}` : `/media/${encodedKey}`;
 }
 
 export { formatHttpUrl, toMediaUrl };
