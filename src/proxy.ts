@@ -18,6 +18,7 @@ function isPublicPath(pathname: string) {
     || pathname.startsWith('/media')
     || pathname.startsWith('/_next')
     || pathname === '/favicon.ico'
+    || pathname === '/robots.txt'
     || PUBLIC_FILE_REG.test(pathname);
 }
 
@@ -94,5 +95,5 @@ export async function proxy(req: NextRequest) {
 }
 
 export const config = {
-  matcher: ['/((?!api|media|_next/static|_next/image|favicon.ico|.*\\.(?:png|jpg|jpeg|gif|webp|svg|ico)$).*)'],
+  matcher: ['/((?!api|media|_next/static|_next/image|favicon.ico|robots.txt|.*\\.(?:png|jpg|jpeg|gif|webp|svg|ico)$).*)'],
 };

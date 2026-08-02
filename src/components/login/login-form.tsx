@@ -71,12 +71,6 @@ export function LoginForm({
     })
   }
 
-  // 阻止长按回车重复触发表单提交。
-  function blockEnterRepeat(event: KeyboardEvent<HTMLFormElement>) {
-    if (event.key === "Enter" && event.repeat) {
-      event.preventDefault()
-    }
-  }
 
   return (
     <div className={cn("flex flex-col gap-6", className)} {...props}>
@@ -95,13 +89,11 @@ export function LoginForm({
           </CardDescription>
         </CardHeader>
         <CardContent>
-          <form onSubmit={submitLogin} onKeyDown={blockEnterRepeat}>
+          <form onSubmit={submitLogin} >
             <FieldGroup>
               <Field>
                 <Input
-                  id="text"
                   type="text"
-                  autoComplete="off"
                   placeholder={t("username")}
                   value={form.username}
                   onChange={(event) => updateField("username", event.target.value)}
@@ -111,10 +103,8 @@ export function LoginForm({
               </Field>
               <Field>
                 <Input
-                  id="new-passowrd"
                   type="password"
                   placeholder={t("password")}
-                  autoComplete="off"
                   value={form.password}
                   onChange={(event) => updateField("password", event.target.value)}
                   className="bg-white/50"

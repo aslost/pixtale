@@ -49,32 +49,17 @@ export default function LoginPage() {
   }
 
   return (
-    <div className="relative isolate flex min-h-svh w-full flex-col items-center justify-center gap-6 overflow-hidden bg-[#ECF5FC] p-6 md:p-10">
-      <svg
-        viewBox="0 0 200 200"
-        xmlns="http://www.w3.org/2000/svg"
-        className="pointer-events-none absolute bottom-0 left-0 -z-20 size-[clamp(24rem,60vw,60rem)] -translate-x-[40%] translate-y-[40%]"
-        aria-hidden="true"
-      >
-        <path
-          fill="#FF0066"
-          d="M51.8,-70.6C67.3,-60.1,80.1,-45.1,85.3,-28C90.5,-10.9,88,8.5,81.8,26.2C75.5,43.9,65.4,60,51.1,70C36.9,80.1,18.4,84.1,0.1,84C-18.3,83.9,-36.6,79.7,-52.3,70.1C-68.1,60.6,-81.4,45.7,-87.2,28.3C-92.9,10.8,-91.1,-9.1,-85.1,-27.7C-79.1,-46.3,-68.9,-63.6,-54.1,-74.4C-39.2,-85.1,-19.6,-89.4,-0.7,-88.4C18.2,-87.4,36.3,-81.2,51.8,-70.6Z"
-          transform="translate(100 100)"
-        />
-      </svg>
-      <svg
-        viewBox="0 0 200 200"
-        xmlns="http://www.w3.org/2000/svg"
-        className="pointer-events-none absolute top-0 right-0 -z-20 size-[clamp(24rem,60vw,60rem)] translate-x-[40%] -translate-y-[40%]"
-        aria-hidden="true"
-      >
-        <path
-          fill="#9EF0F0"
-          d="M51.8,-70.6C67.3,-60.1,80.1,-45.1,85.3,-28C90.5,-10.9,88,8.5,81.8,26.2C75.5,43.9,65.4,60,51.1,70C36.9,80.1,18.4,84.1,0.1,84C-18.3,83.9,-36.6,79.7,-52.3,70.1C-68.1,60.6,-81.4,45.7,-87.2,28.3C-92.9,10.8,-91.1,-9.1,-85.1,-27.7C-79.1,-46.3,-68.9,-63.6,-54.1,-74.4C-39.2,-85.1,-19.6,-89.4,-0.7,-88.4C18.2,-87.4,36.3,-81.2,51.8,-70.6Z"
-          transform="translate(100 100)"
-        />
-      </svg>
-      <div className="flex w-full max-w-sm flex-col gap-6">
+    <div className="relative isolate flex min-h-screen w-full flex-col items-center justify-center gap-6 overflow-hidden bg-[#fefcff] p-6 md:p-10">
+      {/* Dreamy Sky Pink Glow */}
+      <div
+        className="absolute inset-0 z-0"
+        style={{
+          backgroundImage: `
+            radial-gradient(circle at 30% 70%, rgba(173, 216, 230, 0.35), transparent 60%),
+            radial-gradient(circle at 70% 30%, rgba(255, 182, 193, 0.4), transparent 60%)`,
+        }}
+      />
+      <div className="relative z-10 flex w-full max-w-sm flex-col gap-6">
         <LoginForm loading={loading} onLogin={handleLogin} />
       </div>
     </div>
