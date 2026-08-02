@@ -3,6 +3,7 @@
 import { useEffect, useRef, useState, type ChangeEvent } from "react"
 import { CheckIcon, CircleAlertIcon, PlusIcon, RedoDot, SettingsIcon } from "lucide-react"
 import { toast } from "sonner"
+import { sha1 } from "hash-wasm"
 
 import { Button } from "@/components/ui/button"
 import {
@@ -46,11 +47,8 @@ interface UploadPreview {
 
 // 在浏览器中计算待上传文件的 SHA-1 校验和。
 async function getFileChecksum(file: File) {
-  const buffer = await crypto.subtle.digest("SHA-1", await file.arrayBuffer())
-
-  return Array.from(new Uint8Array(buffer))
-    .map((byte) => byte.toString(16).padStart(2, "0"))
-    .join("")
+  const buffer = await file.arrayBuffer()
+  return sha1(new Uint8Array(buffer))
 }
 
 // 从上传接口响应中提取错误提示，XML 优先读取 Message 标签。
