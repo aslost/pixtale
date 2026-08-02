@@ -1,13 +1,13 @@
 <p align="center">
     <img src="docs/images/logo.png" width="96px" />
     <h1 align="center">Pixtale</h1>
-    <p align="center"><strong>一个瀑布流列表照片空间存储程序 🎉</strong></p>
+    <p align="center"><strong>一个瀑布流Web相册，基于Next构建 🎉</strong></p>
     <p align="center">简体中文 | <a href="README_EN.md">English</a></p>
 </p>
 
 ## 项目展示
 
-- [在线演示](https://demo.mornglow.top)
+- [在线演示](https://022335.xyz)
 
 ![](docs/images/demo.jpg)
 ![](docs/images/demo1.jpg)
@@ -40,47 +40,28 @@
 
 - **UI组件：** [shadcn/ui](https://ui.shadcn.com/)
 
-## 快速部署
+## 开始使用
 
 #### Docker部署
 
+把 `ADMIN` `PASSWORD` `JWT_SECRET` 改成你自己的，运行
 ```yaml
-docker run \
+docker run -d \
   --name pixtale \
   -p 8082:8082 \
   -v /home/pixtale:/app/data \
   -e ADMIN=root \
   -e PASSWORD=123456 \
   -e JWT_SECRET=abc \
-  pixtalelab/pixtale:latest
+  aslost/pixtale:latest
 ```
 
-把上面的 `ADMIN` `PASSWORD` `JWT_SECRET` 改成你自己的，然后运行
+然后访问 `http://ip:8082`
 
-### 本地开发
-
-#### 环境要求 
-
-- Nodejs 24+
+#### Windos运行
 
 
-#### 安装依赖
-
-```yaml
-pnpm i
-```
-
-#### 配置环境
-
-```yaml
-cp .env.example .env
-```
-
-#### 启动服务
-
-```yaml
-pnpm run dev
-```
+在 [Releases](https://github.com/aslost/pixtale/releases) 下载 `pixtale-win.zip`，解压后在 `.env` 配置环境，然后双击 `start.bat` 启动 
 
 ## 环境变量
 

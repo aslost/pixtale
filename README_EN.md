@@ -1,13 +1,13 @@
 <p align="center">
         <img src="docs/images/logo.png" width="96px" />
     <h1 align="center">Pixtale</h1>
-    <p align="center"><strong>A photo storage application with a masonry gallery</strong></p>
+    <p align="center"><strong>A masonry-style web photo album built with Next.js</strong></p>
     <p align="center"><a href="README.md">简体中文</a> | English</p>
 </p>
 
 ## Preview
 
-- [Live Demo](https://demo.mornglow.top)
+- [Live Demo](https://022335.xyz)
 
 ![](docs/images/demo.jpg)
 ![](docs/images/demo1.jpg)
@@ -41,43 +41,22 @@
 
 ### Docker
 
+Replace ADMIN, PASSWORD, and JWT_SECRET with your own values, then run:
 ```bash
-docker run \
+docker run -d \
   --name pixtale \
   -p 8082:8082 \
   -v /home/pixtale:/app/data \
   -e ADMIN=root \
   -e PASSWORD=123456 \
   -e JWT_SECRET=abc \
-  pixtalelab/pixtale:latest
+  aslost/pixtale:latest
 ```
+Then visit http://ip:8082
 
-Replace `ADMIN`, `PASSWORD`, and `JWT_SECRET` with your own secure values, then run the command.
+### Windows
 
-### Local Development
-
-#### Requirements
-
-- Nodejs 24+
-
-
-#### Install Dependencies
-
-```yaml
-pnpm i
-```
-
-#### Configure Environment
-
-```yaml
-cp .env.example .env
-```
-
-#### Start the Dev Server
-
-```yaml
-pnpm run dev
-```
+Download `pixtale-win.zip` from [Releases](https://github.com/aslost/pixtale/releases), extract it, configure `.env`, then double-click `start.bat` to start.
 
 ## Environment Variables
 
