@@ -47,3 +47,6 @@ git-tools.js
 gen-demo.js
 .vercelignore
 .vercel
+/standalone
+package-lock.json
+standalone.zip
