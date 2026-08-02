@@ -44,4 +44,6 @@ next-env.d.ts
 album.sqlite
 /data
 git-tools.js
+gen-demo.js
+.vercelignore
 .vercel

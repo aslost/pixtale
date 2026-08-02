@@ -56,6 +56,10 @@ const loginService = {
       throw new BizError("login.invalidCredentials");
     }
 
+    if (user.username === process.env.NEXT_PUBLIC_DEMO_USERNAME) {
+      return createLoginToken(user.userId, 'demo');
+    }
+
     const uuid = await this.saveAuthInfo(user);
     return createLoginToken(user.userId, uuid);
   },

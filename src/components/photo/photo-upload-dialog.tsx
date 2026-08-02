@@ -379,6 +379,10 @@ export function PhotoUploadDialog() {
 
   // 上传弹窗内待处理的照片，成功后通知父页面。
   function startUpload() {
+    if (process.env.NEXT_PUBLIC_DEMO_USERNAME && previewsRef.current.length > 0) {
+      toast.error("The application is running in read-only mode.")
+      return
+    }
 
     if (!selectedStorageId && previewsRef.current.length > 0) {
       toast.error(t("invalidStorage"))
