@@ -1,5 +1,5 @@
 <p align="center">
-    <img src="docs/images/logo.png" width="96px" />
+    <img src="https://img.022335.xyz/logo.png" width="96px" />
     <h1 align="center">Pixtale</h1>
     <p align="center"><strong>一个瀑布流Web相册，基于Next构建 🎉</strong></p>
     <p align="center">简体中文 | <a href="README_EN.md">English</a></p>
@@ -9,8 +9,8 @@
 
 - [在线演示](https://022335.xyz)
 
-![](docs/images/demo.jpg)
-![](docs/images/demo1.jpg)
+![](https://img.022335.xyz/demo.jpg)
+![](https://img.022335.xyz/demo1.jpg)
 
 
 ## 功能介绍
@@ -49,8 +49,8 @@
 docker run -d \
   --name pixtale \
   -p 8082:8082 \
-  -v /home/pixtale:/app/data \
-  -e ADMIN=root \
+  -v /home/pixtale/data:/app/data \
+  -e ADMIN=admin \
   -e PASSWORD=123456 \
   -e JWT_SECRET=abc \
   aslost/pixtale:latest
@@ -71,6 +71,10 @@ docker run -d \
 | PASSWORD   | ✅  | 空       | 管理员密码 |
 | JWT_SECRET | ✅  | 空       | JWT密钥 |
 | TITLE      | ❌  | Pixtale | 网站标题  |
+
+
+## 友情社区
+[LINUXDO](https://linux.do)
 
 ## 许可证
 

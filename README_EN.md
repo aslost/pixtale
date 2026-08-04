@@ -1,5 +1,5 @@
 <p align="center">
-        <img src="docs/images/logo.png" width="96px" />
+        <img src="https://img.022335.xyz/logo.png" width="96px" />
     <h1 align="center">Pixtale</h1>
     <p align="center"><strong>A masonry-style web photo album built with Next.js</strong></p>
     <p align="center"><a href="README.md">简体中文</a> | English</p>
@@ -9,8 +9,8 @@
 
 - [Live Demo](https://022335.xyz)
 
-![](docs/images/demo.jpg)
-![](docs/images/demo1.jpg)
+![](https://img.022335.xyz/demo.jpg)
+![](https://img.022335.xyz/demo1.jpg)
 ## Features
 
 - **🖼️ Masonry Gallery:** Browse photos with infinite scrolling, cursor-based pagination, and virtualized rendering.
@@ -46,8 +46,8 @@ Replace ADMIN, PASSWORD, and JWT_SECRET with your own values, then run:
 docker run -d \
   --name pixtale \
   -p 8082:8082 \
-  -v /home/pixtale:/app/data \
-  -e ADMIN=root \
+  -v /home/pixtale/data:/app/data \
+  -e ADMIN=admin \
   -e PASSWORD=123456 \
   -e JWT_SECRET=abc \
   aslost/pixtale:latest
@@ -66,6 +66,9 @@ Download `pixtale-win.zip` from [Releases](https://github.com/aslost/pixtale/rel
 | `PASSWORD`   | ✅        | None    | Administrator password   |
 | `JWT_SECRET` | ✅        | None    | Secret used to sign JWTs |
 | `TITLE`      | ❌        | Pixtale | Website title            |
+
+## Friend Links
+[LINUXDO](https://linux.do)
 
 ## License
 
