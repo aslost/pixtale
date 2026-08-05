@@ -23,6 +23,9 @@ FROM node:22-alpine AS runner
 
 WORKDIR /app
 
+# exiftool-vendored.pl 依赖系统 Perl 才能读 EXIF
+RUN apk add --no-cache perl
+
 ENV NODE_ENV=production
 ENV PORT=8082
 

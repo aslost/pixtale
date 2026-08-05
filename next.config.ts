@@ -7,21 +7,16 @@ const nextConfig: NextConfig = {
   serverExternalPackages: ['exiftool-vendored', 'better-sqlite3'],
   // Vercel 不用 standalone；Docker 自建部署才需要。
   output: process.env.VERCEL ? undefined : 'standalone',
-  // Windows standalone 需要把原生依赖资源一并打进产物。
-  ...(process.platform === "win32"
-    ? {
-        outputFileTracingIncludes: {
-          "/**": [
+  // standalone 需要把平台对应的原生依赖资源一并打进产物。
+  outputFileTracingIncludes: {
+    "/**":
+      process.platform === "win32"
+        ? [
             "./node_modules/@img/sharp-win32-x64/**/*",
             "./node_modules/exiftool-vendored.exe/**/*",
-          ],
-        },
-        typescript: {
-          // Windows 本地打包时跳过 TypeScript 类型检查。
-          ignoreBuildErrors: true,
-        },
-      }
-    : {}),
+          ]
+        : ["./node_modules/exiftool-vendored.pl/**/*"],
+  },
   async headers() {
     return [
       {

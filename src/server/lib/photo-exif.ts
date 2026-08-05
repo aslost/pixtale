@@ -196,7 +196,8 @@ export async function readPhotoExifFromBuffer(input: ArrayBuffer | Buffer) {
       altitude: getAltitude(tags),
       exif: buildExifJson(tags),
     }
-  } catch {
+  } catch (error) {
+    console.error("[ExifError] failed to read EXIF:", error)
     return {
       takenTime: null,
       latitude: null,
