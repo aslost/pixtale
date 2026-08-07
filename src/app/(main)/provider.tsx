@@ -4,7 +4,6 @@ import dynamic from "next/dynamic"
 import * as React from "react"
 import { useEffect } from "react"
 import { TooltipProvider } from "@/components/ui/tooltip"
-import { Toaster } from "@/components/ui/sonner"
 import { albumList } from "@/request/album"
 import { storageSelect } from "@/request/storage"
 import { type UserInfoVo } from "@/server/entity/vo/user"
@@ -12,20 +11,14 @@ import { useIsMobile } from "@/hooks/use-mobile"
 import { useAlbumStore } from "@/store/album-store"
 import { usePhotoStore } from "@/store/photo-store"
 import { useStorageStore } from "@/store/storage-store"
-import { TOKEN_COOKIE_MAX_AGE } from "@/server/const/global"
 
 const PhotoUploadDialog = dynamic(
   () => import("@/components/photo/photo-upload-dialog").then((mod) => mod.PhotoUploadDialog),
   { ssr: false }
 )
 
-type Theme = "light" | "dark"
-
-const THEME_COOKIE_NAME = "theme"
-
 type ProviderProps = {
   children: React.ReactNode
-  defaultTheme: Theme
   defaultSidebarOpen: boolean
   initialUserInfo: UserInfoVo | null
   title: string
@@ -33,15 +26,12 @@ type ProviderProps = {
 
 type AppContextValue = {
   title: string
-  theme: Theme
   userInfo: UserInfoVo | null
   setUserInfo: React.Dispatch<React.SetStateAction<UserInfoVo | null>>
   sidebarOpen: boolean
   setSidebarOpen: React.Dispatch<React.SetStateAction<boolean>>
   refreshAlbums: () => Promise<void>
   refreshStorages: () => Promise<void>
-  setTheme: (theme: Theme) => void
-  toggleTheme: () => void
 }
 
 const AppContext = React.createContext<AppContextValue | null>(null)
@@ -58,8 +48,7 @@ function useApp() {
 }
 
 // 承载主体区域的业务 Provider。
-function Provider({ children, defaultTheme, defaultSidebarOpen, initialUserInfo, title }: ProviderProps) {
-  const [theme, setThemeState] = React.useState<Theme>(defaultTheme)
+function Provider({ children, defaultSidebarOpen, initialUserInfo, title }: ProviderProps) {
   // userInfo 保存当前登录用户信息，登录后可立即更新布局展示。
   const [userInfo, setUserInfo] = React.useState<UserInfoVo | null>(initialUserInfo)
   // sidebarOpen 保存侧边栏当前展开状态，供页面切换后继续复用。
@@ -95,19 +84,6 @@ function Provider({ children, defaultTheme, defaultSidebarOpen, initialUserInfo,
     }
   }, [isMobile, setInfoOpen])
 
-  // 更新主题 class 和 cookie，让下次服务端渲染能恢复当前主题。
-  const setTheme = React.useCallback((nextTheme: Theme) => {
-    setThemeState(nextTheme)
-    document.documentElement.classList.toggle("dark", nextTheme === "dark")
-    document.documentElement.style.colorScheme = nextTheme
-    document.cookie = `${THEME_COOKIE_NAME}=${nextTheme}; path=/; max-age=${TOKEN_COOKIE_MAX_AGE}`
-  }, [])
-
-  // 在亮色和暗色主题之间切换。
-  const toggleTheme = React.useCallback(() => {
-    setTheme(theme === "dark" ? "light" : "dark")
-  }, [setTheme, theme])
-
   // 重新查询正常存储配置并写入全局存储选项。
   const refreshStorages = React.useCallback(() => {
     return storageSelect().then((storages) => {
@@ -125,17 +101,14 @@ function Provider({ children, defaultTheme, defaultSidebarOpen, initialUserInfo,
   const value = React.useMemo<AppContextValue>(
     () => ({
       title,
-      theme,
       userInfo,
       setUserInfo,
       sidebarOpen,
       setSidebarOpen,
       refreshAlbums,
       refreshStorages,
-      setTheme,
-      toggleTheme,
     }),
-    [title, theme, userInfo, sidebarOpen, refreshAlbums, refreshStorages, setTheme, toggleTheme]
+    [title, userInfo, sidebarOpen, refreshAlbums, refreshStorages]
   )
 
   return (
@@ -143,11 +116,9 @@ function Provider({ children, defaultTheme, defaultSidebarOpen, initialUserInfo,
       <TooltipProvider>
         {children}
         <PhotoUploadDialog />
-        <Toaster position="top-center" />
       </TooltipProvider>
     </AppContext.Provider>
   )
 }
 
 export { Provider, useApp }
-export type { Theme }

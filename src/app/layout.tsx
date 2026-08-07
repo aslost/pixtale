@@ -3,6 +3,8 @@ import { Geist } from "next/font/google"
 import { type Metadata } from "next"
 import { getLocale } from "next-intl/server"
 
+import { ThemeProvider, type Theme } from "@/app/provider"
+import { Toaster } from "@/components/ui/sonner"
 import "./globals.css"
 
 const geist = Geist({
@@ -27,16 +29,22 @@ interface RootLayoutProps {
   children: React.ReactNode
 }
 
-// 最简根布局：html/body、字体，以及主题 class（默认浅色）。
+// 最简根布局：html/body、字体，以及主题 Provider。
 export default async function RootLayout({ children }: RootLayoutProps) {
   const cookieStore = await cookies()
-  const theme = cookieStore.get(THEME_COOKIE_NAME)?.value === "dark" ? "dark" : "light"
+  // 仅显式 dark 时启用暗色，其余默认浅色。
+  const defaultTheme: Theme = cookieStore.get(THEME_COOKIE_NAME)?.value === "dark" ? "dark" : "light"
   const locale = await getLocale()
 
   return (
-    <html lang={locale} className={`${geist.variable} ${theme}`} suppressHydrationWarning>
+    <html lang={locale} className={`${geist.variable} ${defaultTheme}`} suppressHydrationWarning>
       <head />
-      <body>{children}</body>
+      <body>
+        <ThemeProvider defaultTheme={defaultTheme}>
+          {children}
+          <Toaster position="bottom-right" />
+        </ThemeProvider>
+      </body>
     </html>
   )
 }

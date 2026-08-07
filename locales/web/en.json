@@ -59,7 +59,7 @@
   "trash.clear": "Empty trash",
   "login.description": "Enter your account details to access your photos.",
   "login.metaTitle": "Sign in - {appName}",
-  "login.metaDescription": "Sign in to {appName}",
+  "login.metaDescription": "This is a self-hosted open-source photo album system for internal use only.",
   "login.username": "Username",
   "login.password": "Password",
   "login.signIn": "Sign in",

@@ -46,6 +46,14 @@ function clearLoginCookies(response: NextResponse) {
 export async function proxy(req: NextRequest) {
 
   const { pathname } = req.nextUrl;
+
+  // 旧登录路径已废弃，直接返回 404。
+  if (pathname === '/login' || pathname.startsWith('/login/')) {
+    const notFoundUrl = req.nextUrl.clone();
+    notFoundUrl.pathname = '/_not-found';
+    return NextResponse.rewrite(notFoundUrl, { status: 404 });
+  }
+
   const cookie = req.headers.get('cookie');
   const { userId, uuid } = await getLoginInfo(cookie);
 
@@ -56,7 +64,8 @@ export async function proxy(req: NextRequest) {
 
     const loginUrl = req.nextUrl.clone();
     loginUrl.pathname = '/auth';
-    return clearLoginCookies(NextResponse.redirect(loginUrl));
+    // 未登录时内部改写到登录页，避免 307 重定向。
+    return clearLoginCookies(NextResponse.rewrite(loginUrl));
   }
 
   // 从缓存确认当前会话 uuid 仍有效。
@@ -69,7 +78,8 @@ export async function proxy(req: NextRequest) {
 
     const loginUrl = req.nextUrl.clone();
     loginUrl.pathname = '/auth';
-    return clearLoginCookies(NextResponse.redirect(loginUrl));
+    // 会话失效时同样内部改写到登录页，避免 307 重定向。
+    return clearLoginCookies(NextResponse.rewrite(loginUrl));
   }
 
   if (pathname === '/') {

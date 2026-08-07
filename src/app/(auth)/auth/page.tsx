@@ -1,7 +1,8 @@
 "use client"
 
-import { useState } from "react"
-import { useRouter } from "next/navigation"
+import { useLayoutEffect, useRef, useState } from "react"
+import { useRouter, useServerInsertedHTML } from "next/navigation"
+import { useTheme, type Theme } from "@/app/provider"
 import { LoginForm } from "@/components/login/login-form"
 import { login } from "@/request/login"
 import { type LoginBo } from "@/server/entity/bo/login"
@@ -12,6 +13,35 @@ export default function AuthPage() {
   // loading 标记登录请求是否正在提交。
   const [loading, setLoading] = useState(false)
   const router = useRouter()
+  const { theme, setTheme } = useTheme()
+  // previousTheme 保存进入登录页前的主题，离开时恢复。
+  const previousThemeRef = useRef<Theme>(theme)
+
+  useServerInsertedHTML(() => (
+    <script
+      dangerouslySetInnerHTML={{
+        __html: `(function(){var el=document.documentElement;el.classList.remove("dark");el.style.colorScheme="light";})();`,
+      }}
+    />
+  ))
+
+  // rewrite 不会改地址栏，进入登录页后强制同步为 /auth。
+  useLayoutEffect(() => {
+    if (window.location.pathname !== "/auth") {
+      window.history.replaceState(null, "", "/auth")
+    }
+  }, [])
+
+  // 进入登录页强制浅色，离开时恢复原主题。
+  useLayoutEffect(() => {
+    previousThemeRef.current = theme
+    document.documentElement.classList.remove("dark")
+    document.documentElement.style.colorScheme = "light"
+
+    return () => {
+      setTheme(previousThemeRef.current)
+    }
+  }, [setTheme])
 
   // 请求登录接口，成功后跳转照片页面，由主体 layout 注入用户与业务数据。
   function handleLogin(params: LoginBo) {

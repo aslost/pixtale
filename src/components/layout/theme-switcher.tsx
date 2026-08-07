@@ -3,13 +3,13 @@
 import { MoonIcon, PaletteIcon, SunIcon } from "lucide-react"
 
 import { Button } from "@/components/ui/button"
-import { useApp } from "@/app/(main)/provider"
+import { useTheme } from "@/app/provider"
 import { useTranslations } from "next-intl"
 
 // 渲染用户菜单里的主题切换按钮。
 export function ThemeSwitcher() {
   const t = useTranslations("layout.theme")
-  const { theme, toggleTheme } = useApp()
+  const { theme, toggleTheme } = useTheme()
   const isDark = theme === "dark"
 
   return (

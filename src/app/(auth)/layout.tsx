@@ -1,5 +1,21 @@
+import { type Metadata } from "next"
 import { NextIntlClientProvider } from "next-intl"
-import { getMessages } from "next-intl/server"
+import { getMessages, getTranslations } from "next-intl/server"
+
+// 根据当前语言生成登录侧元数据。
+export async function generateMetadata(): Promise<Metadata> {
+  const t = await getTranslations("login")
+  const title = process.env.TITLE || "Pixtale"
+
+  return {
+    title: t("metaTitle", { appName: title }),
+    description: t("metaDescription"),
+    robots: {
+      index: false,
+      follow: false,
+    },
+  }
+}
 
 interface AuthLayoutProps {
   children: React.ReactNode

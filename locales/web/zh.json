@@ -59,7 +59,7 @@
   "trash.clear": "清空",
   "login.description": "输入账号信息以使用相册",
   "login.metaTitle": "登录 - {appName}",
-  "login.metaDescription": "登录到 {appName} 相册",
+  "login.metaDescription": "这是一个自部署开源相册系统，仅供内部使用。",
   "login.username": "用户名称",
   "login.password": "密码",
   "login.signIn": "登录",
