@@ -8,7 +8,7 @@ import {
   usePositioner,
 } from "masonic"
 
-import { useApp } from "@/app/provider"
+import { useApp } from "@/app/(main)/provider"
 import { AlbumCard } from "@/components/album/album-card"
 import { type AlbumVo } from "@/server/entity/vo/album"
 

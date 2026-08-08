@@ -3,7 +3,6 @@
 import { useEffect, useState, type FormEvent, type KeyboardEvent } from "react"
 import { LoaderCircle } from "lucide-react"
 import { cn } from "@/lib/utils"
-import { useApp } from "@/app/provider"
 import { Button } from "@/components/ui/button"
 import {
   Card,
@@ -20,18 +19,19 @@ import { type LoginBo } from "@/server/entity/bo/login"
 import { useTranslations } from "next-intl"
 
 interface LoginFormProps extends React.ComponentProps<"div"> {
+  title: string
   loading?: boolean
   onLogin: (params: LoginBo) => void
 }
 
 export function LoginForm({
   className,
+  title,
   loading = false,
   onLogin,
   ...props
 }: LoginFormProps) {
   const t = useTranslations("login")
-  const { title } = useApp()
   // form 保存登录表单的用户名和密码。
   const [form, setForm] = useState<LoginBo>({
     username: "",

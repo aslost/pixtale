@@ -3,7 +3,7 @@
 import { MoonIcon, PaletteIcon, SunIcon } from "lucide-react"
 
 import { Button } from "@/components/ui/button"
-import { useApp } from "@/app/provider"
+import { useApp } from "@/app/(main)/provider"
 import { useTranslations } from "next-intl"
 
 // 渲染用户菜单里的主题切换按钮。

@@ -6,7 +6,7 @@ import { usePathname, useRouter } from "next/navigation"
 import { NavMain } from "@/components/layout/nav-main"
 import { NavUser } from "@/components/layout/nav-user"
 import { TeamSwitcher } from "@/components/layout/team-switcher"
-import { useApp } from "@/app/provider"
+import { useApp } from "@/app/(main)/provider"
 import { UserTypeEnum } from "@/server/enums/user-enum"
 import { useTranslations } from "next-intl"
 import {

@@ -26,8 +26,8 @@ function buildUrl(url: string) {
 
 // 处理身份失效并跳转登录页。
 function handleUnauthorized() {
-  if (window.location.pathname !== '/login') {
-    window.location.replace('/login');
+  if (window.location.pathname !== '/auth') {
+    window.location.replace('/auth');
   }
 }
 

@@ -8,7 +8,7 @@ import {
   usePositioner,
 } from "masonic"
 
-import { useApp } from "@/app/provider"
+import { useApp } from "@/app/(main)/provider"
 import { useIsMobile } from "@/hooks/use-mobile"
 import { PhotoCard } from "@/components/photo/photo-card"
 import { PhotoSelectionDrawer } from "@/components/photo/photo-selection-drawer"

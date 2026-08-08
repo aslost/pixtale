@@ -27,7 +27,7 @@ import {
 import { ThemeSwitcher } from "@/components/layout/theme-switcher"
 import { ChevronsUpDownIcon, UserRound, Key, BookOpen, LogOutIcon } from "lucide-react"
 import { logout } from "@/request/login"
-import { useApp } from "@/app/provider"
+import { useApp } from "@/app/(main)/provider"
 import { useTranslations } from "next-intl"
 
 const AvatarUpload = dynamic(
@@ -81,7 +81,7 @@ export function NavUser({
   // 退出登录并跳转回登录页。
   function logoutUser() {
     logout().then(() => {
-      router.replace("/login")
+      router.replace("/auth")
       setUserInfo(null)
     })
   }

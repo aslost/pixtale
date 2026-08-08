@@ -13,7 +13,7 @@ const PUBLIC_FILE_REG = /\.(?:png|jpg|jpeg|gif|webp|svg|ico)$/i;
 
 // 判断当前路径是否允许未登录访问。
 function isPublicPath(pathname: string) {
-  return pathname.startsWith('/login')
+  return pathname.startsWith('/auth')
     || pathname.startsWith('/api')
     || pathname.startsWith('/media')
     || pathname.startsWith('/_next')
@@ -55,7 +55,7 @@ export async function proxy(req: NextRequest) {
     }
 
     const loginUrl = req.nextUrl.clone();
-    loginUrl.pathname = '/login';
+    loginUrl.pathname = '/auth';
     return clearLoginCookies(NextResponse.redirect(loginUrl));
   }
 
@@ -68,7 +68,7 @@ export async function proxy(req: NextRequest) {
     }
 
     const loginUrl = req.nextUrl.clone();
-    loginUrl.pathname = '/login';
+    loginUrl.pathname = '/auth';
     return clearLoginCookies(NextResponse.redirect(loginUrl));
   }
 
@@ -78,7 +78,7 @@ export async function proxy(req: NextRequest) {
     return NextResponse.redirect(url);
   }
 
-  if (pathname.startsWith('/login')) {
+  if (pathname.startsWith('/auth')) {
     const photoUrl = req.nextUrl.clone();
     photoUrl.pathname = '/photos';
     return NextResponse.redirect(photoUrl);
