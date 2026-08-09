@@ -30,5 +30,6 @@
   "storage.disabled": "This storage location has been disabled.",
   "s3.configIncomplete": "The S3 configuration is incomplete.",
   "s3.bucketRequired": "S3 bucket name is required.",
-  "s3.readFailed": "Failed to read the file from S3."
+  "s3.readFailed": "Failed to read the file from S3.",
+  "storage.createUrlUnsupported": "The current storage type does not support presigned uploads."
 }

@@ -5,7 +5,12 @@ import { storageService } from '@/server/service/storage-service';
 import '@/server/storage/local-storage';
 import '@/server/storage/s3-storage';
 import { resolveStorageStrategy } from '@/server/storage/storage-registry';
-import { type StorageObject, type StorageStrategy, type StorageUploadObject } from '@/server/storage/storage-types';
+import {
+  type StorageGetOptions,
+  type StorageObject,
+  type StorageStrategy,
+  type StorageUploadObject,
+} from '@/server/storage/storage-types';
 
 // 这个模块按策略选择存储实现。
 
@@ -52,10 +57,10 @@ const storage = {
     return createStorageStrategy(fileStorage)!.put(files, fileStorage);
   },
 
-  // 根据存储 id 查询配置、选择策略并读取文件。
-  async get(key: string, storageId: string): Promise<StorageObject> {
+  // 根据存储 id 查询配置、选择策略并读取文件；传 as 时返回 Uint8Array。
+  async get(key: string, storageId: string, options?: StorageGetOptions): Promise<StorageObject> {
     const fileStorage = await getStorage(storageId);
-    return createStorageStrategy(fileStorage)!.get(key, fileStorage);
+    return createStorageStrategy(fileStorage)!.get(key, fileStorage, options);
   },
 
   // 根据存储 id 查询配置、选择策略并删除文件，无效类型直接跳过。
@@ -68,9 +73,22 @@ const storage = {
     }
 
     return strategy.delete(key, fileStorage);
-  }
+  },
+
+  // 根据存储 id 与 key 生成预签名上传 URL。
+  async createUrl(key: string, storageId: string, contentType?: string): Promise<string> {
+    const fileStorage = await getStorage(storageId);
+    assertStorageEnabled(fileStorage);
+    return createStorageStrategy(fileStorage)!.createUrl(key, fileStorage, contentType);
+  },
 };
 
 export { storage };
 export { registerStorageStrategy } from '@/server/storage/storage-registry';
-export type { ReadBody, StorageObject, StorageStrategy, StorageUploadObject } from '@/server/storage/storage-types';
+export type {
+  ReadBody,
+  StorageGetOptions,
+  StorageObject,
+  StorageStrategy,
+  StorageUploadObject,
+} from '@/server/storage/storage-types';

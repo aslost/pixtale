@@ -3,7 +3,7 @@ import { Context } from "hono";
 import result from '@/server/model/result';
 import { photoService } from '@/server/service/photo-service';
 import { getUserId } from "@/server/security/context";
-import { type PhotoDeleteBo, type PhotoExistsBo, type PhotoFavoriteBo, type PhotoListBo, type PhotoRecycleBo, type PhotoRestoreBo, type PhotoTakenDateListBo } from '@/server/entity/bo/photo';
+import { type PhotoCreateUrlBo, type PhotoDeleteBo, type PhotoExistsBo, type PhotoFavoriteBo, type PhotoListBo, type PhotoRecycleBo, type PhotoRestoreBo, type PhotoTakenDateListBo } from '@/server/entity/bo/photo';
 
 // 这个模块注册照片相关接口。
 
@@ -18,6 +18,13 @@ app.post('/photo/list', async (c: Context) => {
 app.post('/photo/takenDateList', async (c: Context) => {
   const body = await c.req.json<PhotoTakenDateListBo>();
   const data = await photoService.takenDateList(body, getUserId());
+  return c.json(result.ok(data));
+})
+
+// 按文件名生成预签名上传 URL，key 为 photos/userId/文件名。
+app.post('/photo/createUrl', async (c: Context) => {
+  const body = await c.req.json<PhotoCreateUrlBo>();
+  const data = await photoService.createUrl(body, getUserId());
   return c.json(result.ok(data));
 })
 

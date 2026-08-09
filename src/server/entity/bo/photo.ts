@@ -43,7 +43,14 @@ interface PhotoDeleteBo {
   photoIds: string[];
 }
 
+interface PhotoCreateUrlBo {
+  // 前端传入的原始文件名。
+  fileName: string;
+  // 目标存储配置 id。
+  storageId: string;
+  // 上传文件 MIME，需与 PUT 时 Content-Type 一致。
+  contentType?: string;
+}
 
-
-export type { PhotoDeleteBo, PhotoExistsBo, PhotoFavoriteBo, PhotoListBo, PhotoRecycleBo, PhotoRestoreBo, PhotoTakenDateListBo };
+export type { PhotoCreateUrlBo, PhotoDeleteBo, PhotoExistsBo, PhotoFavoriteBo, PhotoListBo, PhotoRecycleBo, PhotoRestoreBo, PhotoTakenDateListBo };
 

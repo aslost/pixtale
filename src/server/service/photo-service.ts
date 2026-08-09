@@ -6,6 +6,7 @@ import { orm } from '@/server/infra/db';
 import BizError from '@/server/error/biz-error';
 import { storage } from '@/server/storage/storage';
 import {
+  type PhotoCreateUrlBo,
   type PhotoDeleteBo,
   type PhotoExistsBo,
   type PhotoFavoriteBo,
@@ -18,7 +19,7 @@ import { PHOTO_LIST_PAGE_SIZE } from '@/server/const/global';
 import { PhotoFavoriteEnum, PhotoStatusEnum } from '@/server/enums/photo-enum';
 import { StorageTypeOptions } from '@/server/enums/storage-enum';
 import { type PageVo } from '@/server/entity/vo/common';
-import { type PhotoAddResultVo, type PhotoExistsVo, type PhotoTakenDateVo, type PhotoVo } from '@/server/entity/vo/photo';
+import { type PhotoAddResultVo, type PhotoCreateUrlVo, type PhotoExistsVo, type PhotoTakenDateVo, type PhotoVo } from '@/server/entity/vo/photo';
 import { type Storage } from '@/server/entity/storage';
 import { storageService } from '@/server/service/storage-service';
 import { buildContentDisposition, formatFileTimestamp, splitFileName } from '@/server/lib/file';
@@ -187,6 +188,33 @@ const photoService = {
     return key;
   },
 
+  // 按文件名生成 photos/userId/name 的 key，并返回 S3 预签名上传 URL。
+  async createUrl(params: PhotoCreateUrlBo, userId: string): Promise<PhotoCreateUrlVo> {
+    const fileName = params.fileName?.trim();
+    const storageId = params.storageId?.trim();
+
+    if (!fileName) {
+      throw new BizError('photo.fileNameRequired');
+    }
+
+    if (!storageId) {
+      throw new BizError('storage.configRequired');
+    }
+
+    const fileStorageList = await storageService.getStorageList();
+    const fileStorage = fileStorageList.find((item) => item.storageId === storageId);
+
+    if (!fileStorage) {
+      throw new BizError('storage.notFound');
+    }
+
+    const key = await this.resolvePhotoKey(userId, fileName);
+    const contentType = params.contentType?.trim() || 'application/octet-stream';
+    const url = await storage.createUrl(key, storageId, contentType);
+
+    return { url, key };
+  },
+
   // 根据去重设置和 SHA-1 判断当前用户是否已有相同文件。
   async exists(params: PhotoExistsBo, userId: string): Promise<PhotoExistsVo> {
     const checksum = params.checksum?.trim();
@@ -217,12 +245,14 @@ const photoService = {
   // 上传单张照片，后端生成 preview、thumbnail 和元信息。
   async add(form: FormData, userId: string): Promise<PhotoAddResultVo> {
 
-    const file = form.get('file') as File;
+    const file = form.get('file') as File | null;
     const storageId = String(form.get('storageId') ?? '');
     const albumId = String(form.get('albumId') ?? '');
     const lastModified = Number(form.get('lastModified') ?? 0);
+    // 直传完成后传入的对象 key；有值时从存储读取原图。
+    const uploadedKey = String(form.get('key') ?? '').trim();
 
-    if (!file) {
+    if (!file && !uploadedKey) {
       throw new BizError('photo.selectRequired');
     }
 
@@ -237,7 +267,7 @@ const photoService = {
       throw new BizError('storage.notFound');
     }
 
-    const { buffer, name, size, type } = await this.readPhotoUpload(file);
+    const { buffer, name, size, type } = await this.readPhotoUpload(file, uploadedKey, storageId);
     const checksum = await fileChecksum(new Blob([buffer]));
 
     if ((await this.exists({ checksum, name }, userId)).duplicate) {
@@ -247,7 +277,7 @@ const photoService = {
     const images = await processPhotoImages(buffer);
     const meta = await readPhotoExifFromBuffer(buffer);
     const takenTime = meta.takenTime ?? new Date(lastModified > 0 ? lastModified : Date.now()).toISOString();
-    const key = await this.resolvePhotoKey(userId, name);
+    const key = uploadedKey || await this.resolvePhotoKey(userId, name);
     const photoId = createId();
     const preview = buildPreviewKey(checksum, photoId);
     const thumbnail = buildThumbnailKey(checksum, photoId);
@@ -258,13 +288,18 @@ const photoService = {
       ['Content-Disposition', buildContentDisposition(name)]
     ];
 
+    // 已直传原图时不再重复 put 原图，只写入衍生图。
+    const uploadFiles = uploadedKey
+      ? []
+      : [{
+          key,
+          body: buffer,
+          type,
+          metadata: keyMetadata,
+        }];
+
     await storage.put([
-      {
-        key,
-        body: buffer,
-        type,
-        metadata: keyMetadata,
-      },
+      ...uploadFiles,
       {
         key: preview,
         body: images.previewBuffer,
@@ -548,15 +583,42 @@ const photoService = {
     };
   },
 
-  // 从上传文件读取照片 buffer 及名称、大小、类型。
-  async readPhotoUpload(file: File): Promise<{ buffer: Buffer; name: string; size: number; type: string }> {
+  // 从上传文件或已直传的存储 key 读取照片字节及名称、大小、类型。
+  async readPhotoUpload(
+    file: File | null,
+    key?: string,
+    storageId?: string,
+  ): Promise<{ buffer: Uint8Array; name: string; size: number; type: string }> {
+    const trimmedKey = key?.trim();
+
+    if (trimmedKey) {
+      if (!storageId) {
+        throw new BizError('storage.configRequired');
+      }
+
+      const object = await storage.get(trimmedKey, storageId, { as: 'uint8array' });
+      const buffer = object.body as Uint8Array;
+      const name = trimmedKey.split('/').pop() || trimmedKey;
+
+      return {
+        buffer,
+        name,
+        size: object.size || buffer.length,
+        type: object.type || 'application/octet-stream',
+      };
+    }
+
+    if (!file) {
+      throw new BizError('photo.selectRequired');
+    }
+
     return {
-      buffer: Buffer.from(await file.arrayBuffer()),
+      buffer: new Uint8Array(await file.arrayBuffer()),
       name: file.name.trim(),
       size: file.size,
       type: file.type || 'application/octet-stream',
     };
-  }
+  },
 }
 
 export { photoService }

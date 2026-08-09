@@ -1,10 +1,16 @@
 import { createReadStream } from 'node:fs';
 import fs from 'node:fs/promises';
 import path from 'node:path';
-import { type StorageObject, type StorageStrategy, type StorageUploadObject } from '@/server/storage/storage-types';
+import {
+  type StorageGetOptions,
+  type StorageObject,
+  type StorageStrategy,
+  type StorageUploadObject,
+} from '@/server/storage/storage-types';
 import { registerStorageStrategy } from '@/server/storage/storage-registry';
 import { type Storage } from '@/server/entity/storage';
 import { StorageTypeEnum } from '@/server/enums/storage-enum';
+import BizError from '@/server/error/biz-error';
 
 // 这个模块实现本地存储策略。
 
@@ -36,16 +42,25 @@ class LocalStorageStrategy implements StorageStrategy {
     }));
   }
 
-  // 从本地读取文件并以流的方式返回。
-  async get(key: string, storage: Storage): Promise<StorageObject> {
+  // 从本地读取文件；传 as 时返回 Uint8Array，否则返回流。
+  async get(key: string, storage: Storage, options?: StorageGetOptions): Promise<StorageObject> {
     void storage;
     const filePath = this.getLocalPath(key);
     const { size } = await fs.stat(filePath);
+    const type = 'application/octet-stream';
+
+    if (options?.as === 'uint8array') {
+      return {
+        body: new Uint8Array(await fs.readFile(filePath)),
+        size,
+        type,
+      };
+    }
 
     return {
       body: createReadStream(filePath),
       size,
-      type: 'application/octet-stream'
+      type,
     };
   }
 
@@ -54,6 +69,14 @@ class LocalStorageStrategy implements StorageStrategy {
     void storage;
     const keys = Array.isArray(key) ? key : [key];
     await Promise.all(keys.map((item) => fs.rm(this.getLocalPath(item), { force: true })));
+  }
+
+  // 本地存储不支持预签名上传 URL。
+  async createUrl(key: string, storage: Storage, contentType?: string): Promise<string> {
+    void key;
+    void storage;
+    void contentType;
+    throw new BizError('storage.createUrlUnsupported');
   }
 }
 

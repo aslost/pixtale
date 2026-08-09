@@ -3,18 +3,23 @@ import { type Storage } from '@/server/entity/storage';
 
 // 这个模块定义存储策略相关类型。
 
-interface StorageStrategy {
-  put(files: StorageUploadObject[], storage: Storage): Promise<void>;
-  get(key: string, storage: Storage): Promise<StorageObject>;
-  delete(key: string | string[], storage: Storage): Promise<void>;
-}
-
 type ReadBody = Readable | ReadableStream;
 
+interface StorageGetOptions {
+  as?: 'uint8array';
+}
+
 interface StorageObject {
-  body: ReadBody;
+  body: ReadBody | Uint8Array;
   size: number;
   type: string;
+}
+
+interface StorageStrategy {
+  put(files: StorageUploadObject[], storage: Storage): Promise<void>;
+  get(key: string, storage: Storage, options?: StorageGetOptions): Promise<StorageObject>;
+  delete(key: string | string[], storage: Storage): Promise<void>;
+  createUrl(key: string, storage: Storage, contentType?: string): Promise<string>;
 }
 
 interface StorageUploadObject {
@@ -24,4 +29,4 @@ interface StorageUploadObject {
   metadata?: string[][];
 }
 
-export type { ReadBody, StorageObject, StorageStrategy, StorageUploadObject };
+export type { ReadBody, StorageGetOptions, StorageObject, StorageStrategy, StorageUploadObject };

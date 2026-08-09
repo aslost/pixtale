@@ -28,4 +28,11 @@ interface PhotoExistsVo {
   duplicate: boolean;
 }
 
-export type { PhotoVo, PhotoTakenDateVo, PhotoAddResultVo, PhotoExistsVo };
+interface PhotoCreateUrlVo {
+  // 预签名上传地址。
+  url: string;
+  // 实际上传使用的对象 key。
+  key: string;
+}
+
+export type { PhotoVo, PhotoTakenDateVo, PhotoAddResultVo, PhotoExistsVo, PhotoCreateUrlVo };

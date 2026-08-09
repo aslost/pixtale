@@ -180,13 +180,12 @@ function buildExifJson(tags: Tags) {
 }
 
 // 从原图 Exif 读取拍摄时间、经纬度与 exif JSON 字符串。
-export async function readPhotoExifFromBuffer(input: ArrayBuffer | Buffer) {
-  const source = input instanceof Buffer ? input : Buffer.from(input)
+export async function readPhotoExifFromBuffer(input: Uint8Array) {
   const dir = await mkdtemp(join(tmpdir(), "album-exif-"))
   const filePath = join(dir, "photo")
 
   try {
-    await writeFile(filePath, source)
+    await writeFile(filePath, input)
     const tags = await exiftool.read(filePath, { readArgs })
 
     return {

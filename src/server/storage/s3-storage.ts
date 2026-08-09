@@ -1,5 +1,12 @@
 import { DeleteObjectsCommand, GetObjectCommand, PutObjectCommand, type PutObjectCommandInput, S3Client } from '@aws-sdk/client-s3';
-import { type ReadBody, type StorageObject, type StorageStrategy, type StorageUploadObject } from '@/server/storage/storage-types';
+import { getSignedUrl } from '@aws-sdk/s3-request-presigner';
+import {
+  type ReadBody,
+  type StorageGetOptions,
+  type StorageObject,
+  type StorageStrategy,
+  type StorageUploadObject,
+} from '@/server/storage/storage-types';
 import { registerStorageStrategy } from '@/server/storage/storage-registry';
 import { type Storage } from '@/server/entity/storage';
 import { StorageTypeEnum } from '@/server/enums/storage-enum';
@@ -83,8 +90,8 @@ class S3StorageStrategy implements StorageStrategy {
     }
   }
 
-  // 从 S3 读取文件并转成响应 body。
-  async get(key: string, storage: Storage): Promise<StorageObject> {
+  // 从 S3 读取文件；传 as 时返回 Uint8Array，否则返回流。
+  async get(key: string, storage: Storage, options?: StorageGetOptions): Promise<StorageObject> {
     const client = this.createClient(storage);
     const bucket = storage.bucket?.trim();
 
@@ -101,10 +108,21 @@ class S3StorageStrategy implements StorageStrategy {
       throw new BizError('s3.readFailed');
     }
 
+    const type = res.ContentType ?? 'application/octet-stream';
+
+    if (options?.as === 'uint8array') {
+      const body = await res.Body.transformToByteArray();
+      return {
+        body,
+        size: res.ContentLength ?? body.length,
+        type,
+      };
+    }
+
     return {
       body: res.Body as ReadBody,
       size: res.ContentLength ?? 0,
-      type: res.ContentType ?? 'application/octet-stream'
+      type,
     };
   }
 
@@ -132,6 +150,27 @@ class S3StorageStrategy implements StorageStrategy {
         Quiet: true
       }
     }));
+  }
+
+  // 根据 key 生成 S3 预签名上传 URL。
+  async createUrl(key: string, storage: Storage, contentType?: string): Promise<string> {
+    const client = this.createClient(storage);
+    const bucket = storage.bucket?.trim();
+
+    if (!bucket) {
+      throw new BizError('s3.bucketRequired');
+    }
+
+    const command = new PutObjectCommand({
+      Bucket: bucket,
+      Key: key,
+      ContentType: contentType || 'application/octet-stream',
+      CacheControl: 'private, max-age=604800',
+    });
+
+    return getSignedUrl(client, command, {
+      expiresIn: 15 * 60,
+    });
   }
 }
 

@@ -30,9 +30,12 @@ import { PhotoUploadSettings, readPhotoUploadSettings } from "@/components/photo
 import { createPhotoCover } from "@/lib/upload-cover"
 import { useStorageStore } from "@/store/storage-store"
 import { usePhotoStore } from "@/store/photo-store"
-import { photoExists } from "@/request/photo"
+import { photoCreateUrl, photoExists } from "@/request/photo"
 import { type PhotoAddResultVo } from "@/server/entity/vo/photo"
 import { useTranslations } from "next-intl"
+
+// 由 Dockerfile.vercel 在 build 时注入，本地开发默认关闭。
+const useDirectUpload = process.env.NEXT_PUBLIC_VERCEL === "1"
 
 type UploadStatus = "new" | "waiting" | "uploading" | "success" | "failed" | "skipped"
 
@@ -111,6 +114,42 @@ function uploadPhotoAdd(
     request.onerror = () => reject(new Error("Upload failed"))
     request.onabort = () => reject(new DOMException("Upload aborted", "AbortError"))
     request.send(formData)
+  })
+}
+
+// 使用预签名 URL 直传文件到对象存储。
+function uploadToPresignedUrl(
+  url: string,
+  file: File,
+  contentType: string,
+  onProgress?: (progress: number) => void,
+  registerAbort?: (abort: () => void) => void,
+) {
+  return new Promise<void>((resolve, reject) => {
+    const request = new XMLHttpRequest()
+
+    registerAbort?.(() => request.abort())
+    request.open("PUT", url)
+    request.setRequestHeader("Content-Type", contentType)
+    request.setRequestHeader("Cache-Control", "private, max-age=604800")
+    request.upload.onprogress = (event) => {
+      if (event.lengthComputable) {
+        onProgress?.(Math.min(95, Math.round((event.loaded / event.total) * 100)))
+      }
+    }
+    request.onload = () => {
+      if (request.status >= 200 && request.status < 300) {
+        // 与 uploadPhotoAdd 一致：文件传完先到 95，等 add 成功再 100。
+        onProgress?.(95)
+        resolve()
+        return
+      }
+
+      reject(new Error(getUploadErrorText(request.responseText)))
+    }
+    request.onerror = () => reject(new Error("Upload failed"))
+    request.onabort = () => reject(new DOMException("Upload aborted", "AbortError"))
+    request.send(file)
   })
 }
 
@@ -290,17 +329,47 @@ export function PhotoUploadDialog() {
 
       const formData = new FormData()
       formData.set("storageId", currentStorageId)
-      formData.set("file", item.file)
       formData.set("lastModified", String(item.file.lastModified))
       if (item.albumId) {
         formData.set("albumId", item.albumId)
       }
 
-      const result = await uploadPhotoAdd(formData, (progress) => {
+      const updateProgress = (progress: number) => {
         setPreviews(previewsRef.current.map((p) => (
           p.id === item.id ? { ...p, progress } : p
         )))
-      }, (abort) => abortMapRef.current.set(preview.id, abort))
+      }
+
+      const registerAbort = (abort: () => void) => abortMapRef.current.set(preview.id, abort)
+
+      // Vercel 有 body 大小限制，走预签名直传后再调 add。
+      if (useDirectUpload) {
+        const contentType = item.file.type || "application/octet-stream"
+        const { url, key } = await photoCreateUrl({
+          fileName: item.file.name,
+          storageId: currentStorageId,
+          contentType,
+        })
+
+        if (pausedRef.current) {
+          setPreviews(previewsRef.current.map((p) => (
+            p.id === item.id ? { ...p, progress: 100, status: "new" } : p
+          )))
+          return
+        }
+
+        await uploadToPresignedUrl(url, item.file, contentType, updateProgress, registerAbort)
+
+        formData.set("key", key)
+      } else {
+        formData.set("file", item.file)
+      }
+
+      const result = await uploadPhotoAdd(
+        formData,
+        useDirectUpload ? undefined : updateProgress,
+        registerAbort,
+      )
 
       if (result.duplicate) {
         setPreviews(previewsRef.current.map((p) => (
