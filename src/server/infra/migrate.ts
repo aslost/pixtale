@@ -1,7 +1,7 @@
 import { SETTING_KEY } from '@/server/const/global';
 import { type Setting } from '@/server/entity/setting';
 import { SettingPhotoDedupEnum, SettingSyncDeleteEnum } from '@/server/enums/setting-enum';
-import { db } from '@/server/infra/db';
+import { db, turso } from '@/server/infra/db';
 
 // 这个模块负责数据库表结构初始化。
 
@@ -115,12 +115,18 @@ const createTableSqlList = [
 
 // 执行全部建表语句，已存在的表会自动跳过。
 async function migrate(): Promise<void> {
-  const runBatch = db.transaction(() => {
+
+  if (process.env.TURSO_DATABASE_URL) {
+    await turso!.batch(createTableSqlList.map((sql) => ({ sql })), 'write')
+    return
+  }
+
+  const runBatch = db!.transaction(() => {
     for (const sql of createTableSqlList) {
-      db.exec(sql);
+      db!.exec(sql)
     }
-  });
-  runBatch();
+  })
+  runBatch()
 }
 
 export { migrate };
