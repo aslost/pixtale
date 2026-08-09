@@ -7,6 +7,7 @@ import { type PageVo } from '@/server/entity/vo/common';
 import { type StorageSelectVo, type StorageVo } from '@/server/entity/vo/storage';
 import { StorageStatusEnum, StorageTypeEnum } from '@/server/enums/storage-enum';
 import BizError from '@/server/error/biz-error';
+import { isBlobConfigured } from '@/server/lib/blob';
 import { STORAGE_LIST_CACHE_KEY } from '@/server/const/cache';
 import { cache } from '@/server/infra/cache';
 import { orm } from '@/server/infra/db';
@@ -27,12 +28,8 @@ const storageService = {
       .where(eq(storageTab.status, StorageStatusEnum.NORMAL))
       .orderBy(desc(storageTab.sort));
 
-    // Vercel 容器无法写本地盘，选择列表不返回本地存储。
-    if (process.env.VERCEL) {
-      return list.filter((item) => item.type !== StorageTypeEnum.LOCAL);
-    }
-
-    return list;
+    // Blob 仅 Vercel 返回；Vercel 上不返回本地存储；Blob 未配置也不进选择列表。
+    return list.filter((item) => this.isStorageVisible(item.type, true));
   },
 
   // 查询全部存储配置，并统计每个存储下的照片数量和已用容量。
@@ -43,11 +40,14 @@ const storageService = {
       .from(storageTab)
       .orderBy(desc(storageTab.sort));
 
-    if (!storageList.length) {
+    // Blob 仅 Vercel 返回；Vercel 上不返回本地存储。
+    const visibleList = storageList.filter((item) => this.isStorageVisible(item.type, false));
+
+    if (!visibleList.length) {
       return { list: [], total: 0 };
     }
 
-    const storageIds = storageList.map((storage) => storage.storageId);
+    const storageIds = visibleList.map((storage) => storage.storageId);
 
     const photoStatList = await orm
       .select({
@@ -59,17 +59,40 @@ const storageService = {
       .where(inArray(photoTab.storageId, storageIds))
       .groupBy(photoTab.storageId);
 
-    const list = storageList.map((storage) => {
+    const list = visibleList.map((storage) => {
       const photoStat = photoStatList.find((stat) => stat.storageId === storage.storageId);
+      const unavailable = storage.type === StorageTypeEnum.BLOB && !isBlobConfigured();
 
       return {
         ...storage,
+        unavailable,
         photoTotal: Number(photoStat?.photoTotal ?? 0),
         usedCapacity: Number(photoStat?.usedCapacity ?? 0)
       };
     });
 
     return { list, total: list.length };
+  },
+
+  // 判断存储是否对当前环境可见；选择列表额外要求 Blob 已配置。
+  isStorageVisible(type: number, forSelect: boolean) {
+    if (type === StorageTypeEnum.BLOB) {
+      if (!process.env.VERCEL) {
+        return false;
+      }
+
+      if (forSelect && !isBlobConfigured()) {
+        return false;
+      }
+
+      return true;
+    }
+
+    if (process.env.VERCEL && type === StorageTypeEnum.LOCAL) {
+      return false;
+    }
+
+    return true;
   },
 
   // 添加当前用户的存储配置，并阻止创建重复名称。

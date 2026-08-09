@@ -69,7 +69,7 @@ const albumService = {
 
       return {
         ...album,
-        thumbnail: thumbnail ? toMediaUrl(thumbnail, domain) : null,
+        thumbnail: thumbnail ? toMediaUrl(thumbnail, domain, fileStorage?.type) : null,
         thumbHash: photoStat?.thumbHash ?? null,
         photoTotal: Number(photoStat?.photoTotal ?? 0)
       };
@@ -301,7 +301,7 @@ const albumService = {
       createTime: now,
       updateTime: now,
       userId,
-      thumbnail: thumbnail ? toMediaUrl(thumbnail, domain) : null,
+      thumbnail: thumbnail ? toMediaUrl(thumbnail, domain, fileStorage?.type) : null,
       thumbHash: coverPhoto?.thumbHash ?? null,
       photoTotal: photoList.length
     };

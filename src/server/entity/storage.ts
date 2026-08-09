@@ -4,7 +4,7 @@ import { integer, sqliteTable, text } from 'drizzle-orm/sqlite-core';
 export const storageTab = sqliteTable('storage', {
   storageId: text('storage_id').primaryKey(), // 存储id
   name: text('name').notNull(), // 存储名称
-  type: integer('type').notNull(), // 存储类型 1本地 2对象存储
+  type: integer('type').notNull(), // 存储类型 1本地 2对象存储 3 Vercel Blob
   domain: text('domain'), // 访问域名
   bucket: text('bucket'), // 桶名称
   region: text('region'), // 区域

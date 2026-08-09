@@ -87,6 +87,7 @@
   "storage.type": "Type",
   "storage.local": "Local Storage",
   "storage.objectStorage": "Object Storage",
+  "storage.vercelBlob": "Vercel Blob",
   "storage.namePlaceholder": "Enter a storage name",
   "storage.typePlaceholder": "Select a storage type",
   "storage.domainPlaceholder": "Public domain (optional)",

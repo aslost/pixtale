@@ -7,14 +7,16 @@ const StorageStatusEnum = {
 
 const StorageTypeEnum = {
   LOCAL: 1,
-  S3: 2
+  S3: 2,
+  BLOB: 3
 } as const;
 
 type StorageType = (typeof StorageTypeEnum)[keyof typeof StorageTypeEnum];
 
 const StorageTypeOptions = [
   { label: "local", value: StorageTypeEnum.LOCAL },
-  { label: "objectStorage", value: StorageTypeEnum.S3 }
+  { label: "objectStorage", value: StorageTypeEnum.S3 },
+  { label: "vercelBlob", value: StorageTypeEnum.BLOB }
 ];
 
 export { StorageStatusEnum, StorageTypeEnum, StorageTypeOptions };

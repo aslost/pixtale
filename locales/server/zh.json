@@ -31,5 +31,7 @@
   "s3.configIncomplete": "S3 配置不完整",
   "s3.bucketRequired": "S3 桶名称不能为空",
   "s3.readFailed": "S3 文件读取失败",
-  "storage.createUrlUnsupported": "当前存储类型不支持预签名上传"
+  "storage.createUrlUnsupported": "当前存储类型不支持预签名上传",
+  "blob.notConfigured": "未绑定 Vercel Blob（需要 BLOB_STORE_ID）",
+  "blob.readFailed": "Vercel Blob 文件读取失败"
 }

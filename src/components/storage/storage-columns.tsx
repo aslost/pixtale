@@ -56,17 +56,40 @@ function formatCapacity(size: number) {
   return `${value.toFixed(value >= 10 || index === 0 ? 0 : 1)} ${units[index]}`
 }
 
-// 渲染存储状态徽标（Vercel 下本地存储仅展示为不可用，不改真实 status）。
-function StorageStatusBadge({ status, type }: { status: number; type: number }) {
+// 渲染存储类型文案。
+function storageTypeLabel(type: number, t: (key: string) => string) {
+  if (type === StorageTypeEnum.LOCAL) {
+    return t("local")
+  }
+
+  if (type === StorageTypeEnum.BLOB) {
+    return t("vercelBlob")
+  }
+
+  return t("objectStorage")
+}
+
+// 渲染存储状态徽标（接口标记不可用，或 Vercel 上的本地存储）。
+function StorageStatusBadge({
+  status,
+  type,
+  unavailable = false,
+}: {
+  status: number
+  type: number
+  unavailable?: boolean
+}) {
   const t = useTranslations("storage")
-  const unavailable = Boolean(process.env.NEXT_PUBLIC_VERCEL_ENV) && type === StorageTypeEnum.LOCAL
-  const disabled = !unavailable && status === 1
-  const Icon = unavailable || disabled ? IconCircleXFilled : IconCircleCheckFilled
-  const text = unavailable ? t("unavailable") : disabled ? t("disabled") : t("active")
+  // Vercel 无法写本地盘，本地存储也按不可用展示。
+  const showUnavailable = unavailable
+    || (Boolean(process.env.NEXT_PUBLIC_VERCEL_ENV) && type === StorageTypeEnum.LOCAL)
+  const disabled = !showUnavailable && status === 1
+  const Icon = showUnavailable || disabled ? IconCircleXFilled : IconCircleCheckFilled
+  const text = showUnavailable ? t("unavailable") : disabled ? t("disabled") : t("active")
 
   return (
     <Badge variant="outline" className="px-1.5 text-muted-foreground">
-      <Icon className={unavailable || disabled ? "fill-red-500" : "fill-green-500 dark:fill-green-400"} />
+      <Icon className={showUnavailable || disabled ? "fill-red-500" : "fill-green-500 dark:fill-green-400"} />
       {text}
     </Badge>
   )
@@ -93,7 +116,7 @@ export function useStorageColumns({ onEdit, onSetTop, onToggleStatus, onDelete }
     {
       accessorKey: "type",
       header: t("columns.type"),
-      cell: ({ row }) => row.original.type === StorageTypeEnum.LOCAL ? t("local") : t("objectStorage"),
+      cell: ({ row }) => storageTypeLabel(row.original.type, t),
     },
     {
       accessorKey: "usedCapacity",
@@ -114,7 +137,11 @@ export function useStorageColumns({ onEdit, onSetTop, onToggleStatus, onDelete }
       accessorKey: "status",
       header: t("columns.status"),
       cell: ({ row }) => (
-        <StorageStatusBadge status={row.original.status ?? 0} type={row.original.type} />
+        <StorageStatusBadge
+          status={row.original.status ?? 0}
+          type={row.original.type}
+          unavailable={row.original.unavailable}
+        />
       ),
     },
     {
@@ -138,7 +165,10 @@ export function useStorageColumns({ onEdit, onSetTop, onToggleStatus, onDelete }
             </DropdownMenuItem>
             <DropdownMenuItem onClick={() => onSetTop(row.original.storageId)}>{t("pin")}</DropdownMenuItem>
             <DropdownMenuItem
-              disabled={row.original.type === StorageTypeEnum.LOCAL}
+              disabled={
+                row.original.type === StorageTypeEnum.LOCAL
+                || row.original.type === StorageTypeEnum.BLOB
+              }
               onClick={() => onDelete(row.original)}
             >
               {t("delete")}

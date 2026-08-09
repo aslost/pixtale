@@ -31,5 +31,7 @@
   "s3.configIncomplete": "The S3 configuration is incomplete.",
   "s3.bucketRequired": "S3 bucket name is required.",
   "s3.readFailed": "Failed to read the file from S3.",
-  "storage.createUrlUnsupported": "The current storage type does not support presigned uploads."
+  "storage.createUrlUnsupported": "The current storage type does not support presigned uploads.",
+  "blob.notConfigured": "Vercel Blob is not connected (BLOB_STORE_ID required).",
+  "blob.readFailed": "Failed to read the file from Vercel Blob."
 }

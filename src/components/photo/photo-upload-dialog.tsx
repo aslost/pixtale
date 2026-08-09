@@ -32,6 +32,7 @@ import { useStorageStore } from "@/store/storage-store"
 import { usePhotoStore } from "@/store/photo-store"
 import { photoCreateUrl, photoExists } from "@/request/photo"
 import { type PhotoAddResultVo } from "@/server/entity/vo/photo"
+import { BLOB_STORAGE_ID } from "@/server/lib/blob"
 import { useTranslations } from "next-intl"
 
 // Vercel 构建会注入 NEXT_PUBLIC_VERCEL_ENV，本地开发默认关闭。
@@ -124,6 +125,8 @@ function uploadToPresignedUrl(
   contentType: string,
   onProgress?: (progress: number) => void,
   registerAbort?: (abort: () => void) => void,
+  // S3 签名含 Cache-Control 时需带上；Blob 预签名勿带。
+  withCacheControl = true,
 ) {
   return new Promise<void>((resolve, reject) => {
     const request = new XMLHttpRequest()
@@ -131,7 +134,9 @@ function uploadToPresignedUrl(
     registerAbort?.(() => request.abort())
     request.open("PUT", url)
     request.setRequestHeader("Content-Type", contentType)
-    request.setRequestHeader("Cache-Control", "private, max-age=604800")
+    if (withCacheControl) {
+      request.setRequestHeader("Cache-Control", "private, max-age=604800")
+    }
     request.upload.onprogress = (event) => {
       if (event.lengthComputable) {
         onProgress?.(Math.min(95, Math.round((event.loaded / event.total) * 100)))
@@ -344,8 +349,9 @@ export function PhotoUploadDialog() {
 
       const registerAbort = (abort: () => void) => abortMapRef.current.set(preview.id, abort)
 
-      // Vercel 有 body 大小限制，走预签名直传后再调 add。
-      if (useDirectUpload) {
+      // Vercel / Blob 走客户端直传后再调 add，避开函数 body 限制。
+      const directUpload = useDirectUpload || currentStorageId === BLOB_STORAGE_ID
+      if (directUpload) {
         const contentType = item.file.type || "application/octet-stream"
         const { url, key } = await photoCreateUrl({
           fileName: item.file.name,
@@ -360,7 +366,14 @@ export function PhotoUploadDialog() {
           return
         }
 
-        await uploadToPresignedUrl(url, item.file, contentType, updateProgress, registerAbort)
+        await uploadToPresignedUrl(
+          url,
+          item.file,
+          contentType,
+          updateProgress,
+          registerAbort,
+          currentStorageId !== BLOB_STORAGE_ID,
+        )
 
         formData.set("key", key)
       } else {
@@ -369,7 +382,7 @@ export function PhotoUploadDialog() {
 
       const result = await uploadPhotoAdd(
         formData,
-        useDirectUpload ? undefined : updateProgress,
+        directUpload ? undefined : updateProgress,
         registerAbort,
       )
 

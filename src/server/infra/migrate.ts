@@ -99,6 +99,9 @@ const createTableSqlList = [
   `INSERT OR IGNORE INTO storage (storage_id, name, type, sort, status)
         VALUES ('local', '本地存储', 1, 0, 0)`,
 
+  `INSERT OR IGNORE INTO storage (storage_id, name, type, sort, status)
+        VALUES ('blob', 'Blob', 3, 0, 0)`,
+
   `CREATE TABLE IF NOT EXISTS setting (
         key TEXT PRIMARY KEY,
         value TEXT NOT NULL

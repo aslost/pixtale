@@ -61,6 +61,10 @@ export function StorageAddDialog({ title, open, storage, onOpenChange, onStorage
   const storageTypeOptions = [
     { label: t("local"), value: StorageTypeEnum.LOCAL, disabled: true },
     { label: t("objectStorage"), value: StorageTypeEnum.S3, disabled: false },
+    // 仅编辑已有 Blob 时展示，不能通过新增选择。
+    ...(storage?.type === StorageTypeEnum.BLOB
+      ? [{ label: t("vercelBlob"), value: StorageTypeEnum.BLOB, disabled: true }]
+      : []),
   ]
   // resetTimerRef 保存关闭动画结束后重置表单的定时器。
   const resetTimerRef = useRef<ReturnType<typeof setTimeout> | null>(null)
@@ -70,8 +74,10 @@ export function StorageAddDialog({ title, open, storage, onOpenChange, onStorage
   const [errors, setErrors] = useState<StorageAddFormErrors>({})
 
   const isS3 = form.type === StorageTypeEnum.S3
-  // 编辑本地存储时不允许修改类型。
-  const typeLocked = Boolean(storage && storage.type === StorageTypeEnum.LOCAL)
+  // 编辑本地 / Blob 时不允许修改类型。
+  const typeLocked = Boolean(
+    storage && (storage.type === StorageTypeEnum.LOCAL || storage.type === StorageTypeEnum.BLOB),
+  )
 
   useEffect(() => {
     return () => {

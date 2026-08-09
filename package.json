@@ -20,6 +20,7 @@
     "@tabler/icons-react": "^3.44.0",
     "@tanstack/react-table": "^8.21.3",
     "@tursodatabase/serverless": "^1.4.0",
+    "@vercel/blob": "^2.7.0",
     "better-sqlite3": "^12.6.2",
     "class-variance-authority": "^0.7.1",
     "clsx": "^2.1.1",

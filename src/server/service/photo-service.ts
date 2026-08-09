@@ -189,7 +189,7 @@ const photoService = {
     return key;
   },
 
-  // 按文件名生成 photos/userId/name 的 key，并返回 S3 预签名上传 URL。
+  // 按文件名生成 photos/userId/name 的 key，并返回直传凭证（S3 预签名 URL 或 Blob client token）。
   async createUrl(params: PhotoCreateUrlBo, userId: string): Promise<PhotoCreateUrlVo> {
     const fileName = params.fileName?.trim();
     const storageId = params.storageId?.trim();
@@ -576,9 +576,9 @@ const photoService = {
       latitude: exifRow?.latitude ?? null,
       longitude: exifRow?.longitude ?? null,
       altitude: exifRow?.altitude ?? null,
-      key: toMediaUrl(key, domain) ?? null,
-      preview: toMediaUrl(preview, domain) ?? null,
-      thumbnail: toMediaUrl(thumbnail, domain) ?? null,
+      key: toMediaUrl(key, domain, fileStorage?.type) ?? null,
+      preview: toMediaUrl(preview, domain, fileStorage?.type) ?? null,
+      thumbnail: toMediaUrl(thumbnail, domain, fileStorage?.type) ?? null,
       storageName: fileStorage?.name ?? null,
       storageTypeDesc: fileStorage
         ? StorageTypeOptions.find((item) => item.value === fileStorage.type)?.label ?? null
