@@ -56,16 +56,17 @@ function formatCapacity(size: number) {
   return `${value.toFixed(value >= 10 || index === 0 ? 0 : 1)} ${units[index]}`
 }
 
-// 渲染存储状态徽标。
-function StorageStatusBadge({ status }: { status: number }) {
+// 渲染存储状态徽标（Vercel 下本地存储仅展示为不可用，不改真实 status）。
+function StorageStatusBadge({ status, type }: { status: number; type: number }) {
   const t = useTranslations("storage")
-  const disabled = status === 1
-  const Icon = disabled ? IconCircleXFilled : IconCircleCheckFilled
-  const text = disabled ? t("disabled") : t("active")
+  const unavailable = Boolean(process.env.NEXT_PUBLIC_VERCEL_ENV) && type === StorageTypeEnum.LOCAL
+  const disabled = !unavailable && status === 1
+  const Icon = unavailable || disabled ? IconCircleXFilled : IconCircleCheckFilled
+  const text = unavailable ? t("unavailable") : disabled ? t("disabled") : t("active")
 
   return (
     <Badge variant="outline" className="px-1.5 text-muted-foreground">
-      <Icon className={disabled ? "fill-red-500" : "fill-green-500 dark:fill-green-400"} />
+      <Icon className={unavailable || disabled ? "fill-red-500" : "fill-green-500 dark:fill-green-400"} />
       {text}
     </Badge>
   )
@@ -112,7 +113,9 @@ export function useStorageColumns({ onEdit, onSetTop, onToggleStatus, onDelete }
     {
       accessorKey: "status",
       header: t("columns.status"),
-      cell: ({ row }) => <StorageStatusBadge status={row.original.status ?? 0} />,
+      cell: ({ row }) => (
+        <StorageStatusBadge status={row.original.status ?? 0} type={row.original.type} />
+      ),
     },
     {
       id: "actions",

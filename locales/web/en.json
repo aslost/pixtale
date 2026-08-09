@@ -103,6 +103,7 @@
   "storage.view": "Columns",
   "storage.active": "Active",
   "storage.disabled": "Disabled",
+  "storage.unavailable": "Unavailable",
   "storage.edit": "Edit",
   "storage.enable": "Enable",
   "storage.disable": "Disable",

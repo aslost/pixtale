@@ -8,18 +8,15 @@ const nextConfig: NextConfig = {
   env: {
     TITLE: process.env.TITLE || "Pixtale",
   },
-  serverExternalPackages: ['exiftool-vendored', 'better-sqlite3'],
+  serverExternalPackages: ['better-sqlite3'],
   // Vercel 不用 standalone；Docker 自建部署才需要。
   output: process.env.VERCEL ? undefined : 'standalone',
   // standalone 需要把平台对应的原生依赖资源一并打进产物。
   outputFileTracingIncludes: {
     "/**":
       process.platform === "win32"
-        ? [
-            "./node_modules/@img/sharp-win32-x64/**/*",
-            "./node_modules/exiftool-vendored.exe/**/*",
-          ]
-        : ["./node_modules/exiftool-vendored.pl/**/*"],
+        ? ["./node_modules/@img/sharp-win32-x64/**/*"]
+        : [],
   },
   async headers() {
     return [

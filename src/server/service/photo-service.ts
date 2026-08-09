@@ -29,7 +29,8 @@ import { SettingPhotoDedupEnum, SettingSyncDeleteEnum } from '@/server/enums/set
 import { formatHttpUrl, toMediaUrl } from '@/lib/url';
 import { fileChecksum } from '@/server/lib/crypto';
 import { processPhotoImages } from '@/server/lib/photo-process';
-import { readPhotoExifFromBuffer } from '@/server/lib/photo-exif';
+import { readPhotoExifFromBuffer as readExifWithExifr } from '@/server/lib/photo-exifr';
+// import { readPhotoExifFromBuffer as readExifWithExiftool } from '@/server/lib/photo-exif';
 import { type Exif } from '@/server/entity/exif';
 import { exifService } from '@/server/service/exif-service';
 import { buildPhotoKey, buildPreviewKey, buildThumbnailKey } from '@/server/lib/photo-path';
@@ -249,6 +250,8 @@ const photoService = {
     const storageId = String(form.get('storageId') ?? '');
     const albumId = String(form.get('albumId') ?? '');
     const lastModified = Number(form.get('lastModified') ?? 0);
+    // 前端本地相对 UTC 的分钟数（东八区 480），无 Exif OffsetTime* 时用于换算拍摄时间。
+    const tzOffset = Number(form.get('tzOffset'));
     // 直传完成后传入的对象 key；有值时从存储读取原图。
     const uploadedKey = String(form.get('key') ?? '').trim();
 
@@ -275,7 +278,7 @@ const photoService = {
     }
 
     const images = await processPhotoImages(buffer);
-    const meta = await readPhotoExifFromBuffer(buffer);
+    const meta = await readExifWithExifr(buffer, tzOffset);
     const takenTime = meta.takenTime ?? new Date(lastModified > 0 ? lastModified : Date.now()).toISOString();
     const key = uploadedKey || await this.resolvePhotoKey(userId, name);
     const photoId = createId();

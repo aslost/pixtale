@@ -5,7 +5,7 @@ import { type Storage, type StorageInto, storageTab } from '@/server/entity/stor
 import { type StorageSetTopBo, type StorageToggleStatusBo } from '@/server/entity/bo/storage';
 import { type PageVo } from '@/server/entity/vo/common';
 import { type StorageSelectVo, type StorageVo } from '@/server/entity/vo/storage';
-import { StorageStatusEnum } from '@/server/enums/storage-enum';
+import { StorageStatusEnum, StorageTypeEnum } from '@/server/enums/storage-enum';
 import BizError from '@/server/error/biz-error';
 import { STORAGE_LIST_CACHE_KEY } from '@/server/const/cache';
 import { cache } from '@/server/infra/cache';
@@ -17,7 +17,7 @@ const storageService = {
 
   // 查询全部正常存储配置，返回下拉选择需要的字段。
   async select(): Promise<StorageSelectVo[]> {
-    return orm
+    const list = await orm
       .select({
         storageId: storageTab.storageId,
         name: storageTab.name,
@@ -26,6 +26,13 @@ const storageService = {
       .from(storageTab)
       .where(eq(storageTab.status, StorageStatusEnum.NORMAL))
       .orderBy(desc(storageTab.sort));
+
+    // Vercel 容器无法写本地盘，选择列表不返回本地存储。
+    if (process.env.VERCEL) {
+      return list.filter((item) => item.type !== StorageTypeEnum.LOCAL);
+    }
+
+    return list;
   },
 
   // 查询全部存储配置，并统计每个存储下的照片数量和已用容量。

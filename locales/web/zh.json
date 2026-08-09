@@ -103,6 +103,7 @@
   "storage.view": "视图",
   "storage.active": "正常",
   "storage.disabled": "禁用",
+  "storage.unavailable": "不可用",
   "storage.edit": "编辑",
   "storage.enable": "启用",
   "storage.disable": "禁用",

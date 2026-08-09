@@ -34,8 +34,8 @@ import { photoCreateUrl, photoExists } from "@/request/photo"
 import { type PhotoAddResultVo } from "@/server/entity/vo/photo"
 import { useTranslations } from "next-intl"
 
-// 由 Dockerfile.vercel 在 build 时注入，本地开发默认关闭。
-const useDirectUpload = process.env.NEXT_PUBLIC_VERCEL === "1"
+// Vercel 构建会注入 NEXT_PUBLIC_VERCEL_ENV，本地开发默认关闭。
+const useDirectUpload = Boolean(process.env.NEXT_PUBLIC_VERCEL_ENV)
 
 type UploadStatus = "new" | "waiting" | "uploading" | "success" | "failed" | "skipped"
 
@@ -330,6 +330,8 @@ export function PhotoUploadDialog() {
       const formData = new FormData()
       formData.set("storageId", currentStorageId)
       formData.set("lastModified", String(item.file.lastModified))
+      // 本地相对 UTC 的分钟数（东八区 480），后端在无 Exif 偏移时用于换算拍摄时间。
+      formData.set("tzOffset", String(-new Date().getTimezoneOffset()))
       if (item.albumId) {
         formData.set("albumId", item.albumId)
       }
