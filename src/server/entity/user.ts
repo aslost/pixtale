@@ -8,7 +8,7 @@ export const userTab = sqliteTable('user', {
   username: text('username').notNull().unique(), // 用户名
   password: text('password').notNull(), // 密码
   salt: text('salt').notNull(), // 盐
-  avatar: text('avatar').default('').notNull(), // 头像
+  avatar: text('avatar').default('').notNull(), // 头像 id，对应 avatar_base64.id
   type: integer('type').default(2).notNull(), // 类型 1管理员 2普通用户
   status: integer('status').default(UserStatusEnum.DEFAULT).notNull(), // 状态 0默认启用 1启用 2禁用
   createTime: text('create_time').default(sql`(strftime('%Y-%m-%dT%H:%M:%SZ', 'now'))`).notNull() // 创建时间 ISO UTC

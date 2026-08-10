@@ -1,5 +1,6 @@
 import { albumTab } from '@/server/entity/album';
 import { albumPhotoTab } from '@/server/entity/album-photo';
+import { avatarBase64Tab } from '@/server/entity/avatar-base64';
 import { cacheTab } from '@/server/entity/cache';
 import { exifTab } from '@/server/entity/exif';
 import { fileTab } from '@/server/entity/file';
@@ -13,6 +14,7 @@ import { userTab } from '@/server/entity/user';
 const schema = {
   albumPhotoTab,
   albumTab,
+  avatarBase64Tab,
   cacheTab,
   exifTab,
   fileTab,

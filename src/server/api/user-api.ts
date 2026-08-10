@@ -47,7 +47,7 @@ app.post('/user/setAvatar', async (c: Context) => {
   return c.json(result.ok(user.avatar));
 });
 
-// 根据头像 key 从存储读取头像图片，浏览器 img 标签直接加载。
+// 根据头像 id 从数据库读取头像图片，浏览器 img 标签直接加载。
 app.get('/user/avatar/:key', async (c: Context) => {
 
   const key = c.req.param('key');
@@ -58,7 +58,7 @@ app.get('/user/avatar/:key', async (c: Context) => {
   }
 
   return c.body(file.body, 200, {
-    'Content-Type': 'image/webp',
+    'Content-Type': file.type,
     'Cache-Control': 'public, max-age=31536000, immutable',
     'Content-Length': String(file.size),
   });

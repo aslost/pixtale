@@ -24,6 +24,11 @@ const createTableSqlList = [
         create_time TEXT NOT NULL DEFAULT (strftime('%Y-%m-%dT%H:%M:%SZ', 'now'))
     )`,
 
+  `CREATE TABLE IF NOT EXISTS avatar_base64 (
+        id TEXT PRIMARY KEY,
+        base64 TEXT NOT NULL
+    )`,
+
   `CREATE TABLE IF NOT EXISTS album (
         album_id TEXT PRIMARY KEY,
         name TEXT NOT NULL,

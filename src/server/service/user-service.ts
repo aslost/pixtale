@@ -1,6 +1,7 @@
 import { hashPassword } from '@/server/lib/crypto';
 import { createId } from '@/server/lib/id';
 import { count, eq, inArray, sum } from 'drizzle-orm';
+import { avatarBase64Tab } from '@/server/entity/avatar-base64';
 import { userTab } from '@/server/entity/user';
 import { type UserAddBo, type UserSetAvatarBo, type UserSetBo, type UserPasswordBo, type UserToggleStatusBo } from '@/server/entity/bo/user';
 import { photoTab } from '@/server/entity/photo';
@@ -15,7 +16,6 @@ import { AUTH_CACHE_KEY } from '@/server/const/cache';
 import { AUTH_CACHE_TTL } from '@/server/const/global';
 import { albumService } from '@/server/service/album-service';
 import { photoService } from '@/server/service/photo-service';
-import { storage } from '@/server/storage/storage';
 
 // 这个模块处理用户数据查询和写入相关业务。
 
@@ -104,47 +104,62 @@ const userService = {
       .where(eq(userTab.userId, userId))
       .limit(1);
 
-    if (user?.avatar) {
-      await storage.delete(`profile/${user.avatar}`, 'local');
-    }
-
-    const avatarKey = `${createId()}.webp`;
     const match = params.avatar.match(/^data:image\/webp;base64,(.+)$/);
 
     if (!match?.[1]) {
       throw new BizError('user.avatarInvalid');
     }
 
-    await storage.put([{
-      key: `profile/${avatarKey}`,
-      body: Buffer.from(match[1], 'base64'),
-      type: 'image/webp',
-    }], 'local');
+    if (user?.avatar) {
+      await orm.delete(avatarBase64Tab)
+        .where(eq(avatarBase64Tab.id, user.avatar));
+    }
+
+    const avatarId = createId();
+
+    await orm.insert(avatarBase64Tab).values({
+      id: avatarId,
+      base64: match[1],
+    });
 
     await orm.update(userTab)
       .set({
-        avatar: avatarKey
+        avatar: avatarId
       })
       .where(eq(userTab.userId, userId));
 
     return {
       ...user,
-      avatar: avatarKey
+      avatar: avatarId
     };
   },
 
-  // 根据头像 key 从存储读取头像文件。
-  async getAvatar(key?: string) {
+  // 根据头像 id 从 avatar_base64 表读取图片。
+  async getAvatar(id?: string) {
 
-    if (!key) {
+    if (!id) {
       return null;
     }
 
-    try {
-      return await storage.get(`profile/${key}`, 'local');
-    } catch {
+    const [row] = await orm
+      .select({
+        base64: avatarBase64Tab.base64,
+      })
+      .from(avatarBase64Tab)
+      .where(eq(avatarBase64Tab.id, id))
+      .limit(1);
+
+    if (!row?.base64) {
       return null;
     }
+
+    const body = Buffer.from(row.base64, 'base64');
+
+    return {
+      body,
+      size: body.byteLength,
+      type: 'image/webp',
+    };
   },
 
   // 查询全部用户，并统计每个用户的照片数量和已用容量。
@@ -348,7 +363,8 @@ const userService = {
       .limit(1);
 
     if (user?.avatar) {
-      await storage.delete(`profile/${user.avatar}`, 'local');
+      await orm.delete(avatarBase64Tab)
+        .where(eq(avatarBase64Tab.id, user.avatar));
     }
 
     await photoService.recycleByUserId(deleteUserId);
