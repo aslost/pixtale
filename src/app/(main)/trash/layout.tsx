@@ -1,6 +1,5 @@
-import { cookies } from "next/headers"
 import { TrashProvider } from "./provider"
-import { getLoginInfo } from "@/lib/cookie"
+import { getProxyUser } from "@/server/lib/proxy-user"
 import { albumService } from "@/server/service/album-service"
 
 interface TrashLayoutProps {
@@ -9,14 +8,13 @@ interface TrashLayoutProps {
 
 // 服务端查询回收站虚拟相册，并提供给 /trash 页面初始化入口。
 export default async function TrashLayout({ children }: TrashLayoutProps) {
-  const cookieStore = await cookies()
-  const { userId } = await getLoginInfo(cookieStore.toString())
+  const proxyUser = await getProxyUser()
 
-  if (!userId) {
+  if (!proxyUser) {
     return null
   }
 
-  const data = await albumService.trash(userId)
+  const data = await albumService.trash(proxyUser.userId)
 
   return (
     <TrashProvider initialAlbum={data}>

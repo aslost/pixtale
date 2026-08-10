@@ -1,6 +1,6 @@
 {
   "system.jwtSecretMissing": "JWT_SECRET is not configured.",
-  "system.readonly": "The application is running in read-only mode.",
+  "system.demoReadonly": "Operations are not allowed in demo mode.",
   "system.internalError": "Internal server error.",
   "auth.failed": "Authentication failed.",
   "auth.forbidden": "You don't have permission to perform this action.",

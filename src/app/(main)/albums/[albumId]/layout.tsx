@@ -1,6 +1,5 @@
-import { cookies } from "next/headers"
 import { AlbumPhotoProvider } from "./provider"
-import { getLoginInfo } from "@/lib/cookie"
+import { getProxyUser } from "@/server/lib/proxy-user"
 import { PHOTO_LIST_PAGE_SIZE } from "@/server/const/global"
 import { photoService } from "@/server/service/photo-service"
 
@@ -14,10 +13,9 @@ interface AlbumPhotoLayoutProps {
 // 服务端查询当前相册照片第一页，并提供给相册照片页初始化列表。
 export default async function AlbumPhotoLayout({ children, params }: AlbumPhotoLayoutProps) {
   const { albumId } = await params
-  const cookieStore = await cookies()
-  const { userId } = await getLoginInfo(cookieStore.toString())
+  const proxyUser = await getProxyUser()
 
-  if (!userId) {
+  if (!proxyUser) {
     return null
   }
 
@@ -28,7 +26,7 @@ export default async function AlbumPhotoLayout({ children, params }: AlbumPhotoL
     favorite: null,
     status: null,
     albumId,
-  }, userId)
+  }, proxyUser.userId)
 
   return (
     <AlbumPhotoProvider initialPhotos={data.list}>

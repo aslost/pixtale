@@ -49,7 +49,11 @@ export function UserAddDialog({ title, open, user, onOpenChange, onUserConfirm }
   const t = useTranslations("users")
   const userTypeOptions = UserTypeOptions.map((option) => ({
     ...option,
-    label: option.value === UserTypeEnum.ADMIN ? t("admin") : t("user"),
+    label: option.value === UserTypeEnum.ADMIN
+      ? t("admin")
+      : option.value === UserTypeEnum.DEMO
+        ? t("demo")
+        : t("user"),
   }))
   // resetTimerRef 保存关闭动画结束后重置表单的定时器。
   const resetTimerRef = useRef<ReturnType<typeof setTimeout> | null>(null)

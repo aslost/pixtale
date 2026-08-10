@@ -1,6 +1,6 @@
-import { cookies } from "next/headers"
 import { SettingProvider } from "./provider"
-import { getLoginInfo } from "@/lib/cookie"
+import { getProxyUser } from "@/server/lib/proxy-user"
+import { UserTypeEnum } from "@/server/enums/user-enum"
 import { settingService } from "@/server/service/setting-service"
 
 interface SettingLayoutProps {
@@ -9,10 +9,9 @@ interface SettingLayoutProps {
 
 // 服务端查询系统设置，并提供给 /setting 页面初始化展示。
 export default async function SettingLayout({ children }: SettingLayoutProps) {
-  const cookieStore = await cookies()
-  const { userId } = await getLoginInfo(cookieStore.toString())
+  const proxyUser = await getProxyUser()
 
-  if (!userId) {
+  if (!proxyUser || proxyUser.type === UserTypeEnum.NORMAL) {
     return null
   }
 

@@ -5,6 +5,7 @@ import { getLoginInfo } from '@/lib/cookie';
 import { UserTypeEnum } from '@/server/enums/user-enum';
 import { type AuthInfo } from '@/server/entity/vo/auth';
 import { cache } from '@/server/infra/cache';
+import { setProxyUserHeaders } from '@/server/lib/proxy-user';
 
 // 这个模块代理页面路由，未登录时跳转登录页。
 
@@ -40,6 +41,18 @@ function clearLoginCookies(response: NextResponse) {
   });
 
   return response;
+}
+
+// 继续请求，并把 userId、type 以哈希头名写入下游。
+function nextWithUser(req: NextRequest, authInfo: AuthInfo) {
+  const requestHeaders = new Headers(req.headers);
+  setProxyUserHeaders(requestHeaders, authInfo.userId, authInfo.type);
+
+  return NextResponse.next({
+    request: {
+      headers: requestHeaders,
+    },
+  });
 }
 
 // 代理未登录页面访问，API 和媒体资源交给各自后端处理。
@@ -94,14 +107,19 @@ export async function proxy(req: NextRequest) {
     return NextResponse.redirect(photoUrl);
   }
 
-  if (isSystemPath(pathname) && authInfo.type !== UserTypeEnum.ADMIN) {
+  // 系统设置页面仅管理员与演示用户可进入。
+  if (
+    isSystemPath(pathname)
+    && authInfo.type !== UserTypeEnum.ADMIN
+    && authInfo.type !== UserTypeEnum.DEMO
+  ) {
     const notFoundUrl = req.nextUrl.clone();
     notFoundUrl.pathname = '/_not-found';
 
     return NextResponse.rewrite(notFoundUrl, { status: 404 });
   }
 
-  return NextResponse.next();
+  return nextWithUser(req, authInfo);
 }
 
 export const config = {

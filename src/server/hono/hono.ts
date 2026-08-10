@@ -30,10 +30,6 @@ app.onError((err, c) => {
     return c.json(result.fail(message, err.code));
   }
 
-  if (err.message.includes('readonly database')) {
-    return c.json(result.fail(t('system.readonly')));
-  }
-
   console.error(err);
   return c.json(result.fail(err.message));
 });

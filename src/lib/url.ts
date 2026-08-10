@@ -15,12 +15,17 @@ function formatHttpUrl(input?: string | null) {
   return httpUrl.replace(/\/+$/, '');
 }
 
-// 把存储 key 转成可请求的文件地址；Blob 用公开 CDN 域名，其它用 domain 或 /media。
+// 把存储 key 转成可请求的文件地址；Blob 仅原图直连 CDN，缩图/高清走 /media。
 function toMediaUrl(key: string, domain?: string | null, type?: number | null) {
   const encodedKey = key.split('/').map((segment) => encodeURIComponent(segment)).join('/');
   let base = formatHttpUrl(domain);
 
   if (type === StorageTypeEnum.BLOB) {
+    // 原图 key 前缀为 photos/，其余走代理。
+    if (!key.startsWith('photos/')) {
+      return `/media/${encodedKey}`;
+    }
+
     const storeId = process.env.BLOB_STORE_ID?.trim().replace(/^store_/, '');
     if (storeId) {
       base = `https://${storeId}.public.blob.vercel-storage.com`;

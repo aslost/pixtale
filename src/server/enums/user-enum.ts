@@ -8,12 +8,14 @@ const UserStatusEnum = {
 
 const UserTypeEnum = {
   ADMIN: 1,
-  NORMAL: 2
+  NORMAL: 2,
+  DEMO: 3
 } as const;
 
 const UserTypeOptions = [
   { label: "普通用户", value: UserTypeEnum.NORMAL },
-  { label: "管理员", value: UserTypeEnum.ADMIN }
+  { label: "管理员", value: UserTypeEnum.ADMIN },
+  { label: "演示用户", value: UserTypeEnum.DEMO }
 ];
 
 export { UserStatusEnum, UserTypeEnum, UserTypeOptions };

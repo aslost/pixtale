@@ -26,6 +26,18 @@ const SYSTEM_PATHS = [
   '/storage/delete'
 ];
 
+// 演示用户允许访问的只读接口（系统设置页靠 SSR，不开放对应管理 API）。
+const DEMO_READ_PATHS = [
+  '/photo/list',
+  '/photo/takenDateList',
+  '/photo/exists',
+  '/user/info',
+  '/user/avatar',
+  '/album/list',
+  '/album/trash',
+  '/storage/select',
+];
+
 // 判断当前路径是否命中指定接口或其子路径。
 function isPathMatched(path: string, target: string) {
   return path === target || path.startsWith(`${target}/`);
@@ -34,6 +46,15 @@ function isPathMatched(path: string, target: string) {
 // 判断当前接口是否属于系统管理接口。
 function isSystemPath(path: string) {
   return SYSTEM_PATHS.some((target) => isPathMatched(path, target));
+}
+
+// 判断演示用户是否允许访问当前接口。
+function isDemoReadPath(path: string) {
+  if (path.startsWith('/media')) {
+    return true;
+  }
+
+  return DEMO_READ_PATHS.some((target) => isPathMatched(path, target));
 }
 
 // 清除登录相关 Cookie。
@@ -67,8 +88,13 @@ async function security(c: Context, next: Next) {
     throw new BizError('auth.failed', 401);
   }
 
-  if (isSystemPath(path) && authInfo.type === UserTypeEnum.NORMAL) {
+  if (isSystemPath(path) && authInfo.type !== UserTypeEnum.ADMIN) {
     throw new BizError('auth.forbidden', 403);
+  }
+
+  // 演示用户仅允许只读接口。
+  if (authInfo.type === UserTypeEnum.DEMO && !isDemoReadPath(path)) {
+    throw new BizError('system.demoReadonly', 403);
   }
 
   setUserId(authInfo.userId);

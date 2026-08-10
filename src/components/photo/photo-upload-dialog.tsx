@@ -27,11 +27,13 @@ import {
   SelectValue,
 } from "@/components/ui/select"
 import { PhotoUploadSettings, readPhotoUploadSettings } from "@/components/photo/photo-upload-settings"
+import { useApp } from "@/app/(main)/provider"
 import { createPhotoCover } from "@/lib/upload-cover"
 import { useStorageStore } from "@/store/storage-store"
 import { usePhotoStore } from "@/store/photo-store"
 import { photoCreateUrl, photoExists } from "@/request/photo"
 import { type PhotoAddResultVo } from "@/server/entity/vo/photo"
+import { UserTypeEnum } from "@/server/enums/user-enum"
 import { BLOB_STORAGE_ID } from "@/server/lib/blob"
 import { useTranslations } from "next-intl"
 
@@ -161,6 +163,7 @@ function uploadToPresignedUrl(
 // 渲染照片上传弹窗。
 export function PhotoUploadDialog() {
   const t = useTranslations("photos.upload")
+  const { userInfo } = useApp() // 当前登录用户，用于演示模式前端拦截。
   const fileInputRef = useRef<HTMLInputElement>(null) // 文件选择 input，用于触发系统文件选择器。
   const previewsRef = useRef<UploadPreview[]>([]) // 保存照片预览和上传状态列表。
   const uploadQueueRef = useRef<UploadPreview[]>([]) // 保存待上传照片队列，支持上传中继续追加照片。
@@ -461,8 +464,8 @@ export function PhotoUploadDialog() {
 
   // 上传弹窗内待处理的照片，成功后通知父页面。
   function startUpload() {
-    if (process.env.NEXT_PUBLIC_DEMO_USERNAME && previewsRef.current.length > 0) {
-      toast.error("The application is running in read-only mode.")
+    if (userInfo?.type === UserTypeEnum.DEMO && previewsRef.current.length > 0) {
+      toast.error(t("demoReadonly"))
       return
     }
 

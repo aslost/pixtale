@@ -16,17 +16,19 @@ import { AUTH_CACHE_KEY } from '@/server/const/cache';
 
 const loginService = {
 
-  // 把用户信息写入登录缓存，并返回本次会话 uuid。
+  // 把用户信息写入登录缓存，并返回本次会话 uuid；最多保留 30 个会话，超出淘汰最旧的。
   async saveAuthInfo(user: { userId: string, username: string, avatar: string, type: number }): Promise<string> {
     const uuid = createId()
     const oldAuthInfo = await cache.get<AuthInfo>(AUTH_CACHE_KEY + user.userId)
+    // 追加新会话，超出 20 个时淘汰数组最前面的旧会话。
+    const uuidList = [...(oldAuthInfo?.uuidList ?? []), uuid].slice(-20)
 
     const authInfo: AuthInfo = {
       userId: user.userId,
       username: user.username,
       avatar: user.avatar,
       type: user.type,
-      uuidList: oldAuthInfo ? [...oldAuthInfo.uuidList, uuid] : [uuid],
+      uuidList,
     }
 
     await cache.set(AUTH_CACHE_KEY + user.userId, authInfo, { ttl: AUTH_CACHE_TTL })
@@ -54,10 +56,6 @@ const loginService = {
 
     if (!isValidPassword) {
       throw new BizError("login.invalidCredentials");
-    }
-
-    if (user.username === process.env.NEXT_PUBLIC_DEMO_USERNAME) {
-      return createLoginToken(user.userId, 'demo');
     }
 
     const uuid = await this.saveAuthInfo(user);

@@ -1,6 +1,6 @@
 {
   "system.jwtSecretMissing": "JWT_SECRET 未配置",
-  "system.readonly": "当前为只读环境",
+  "system.demoReadonly": "演示模式禁止操作",
   "system.internalError": "服务器内部错误",
   "auth.failed": "身份认证失败",
   "auth.forbidden": "权限不足",

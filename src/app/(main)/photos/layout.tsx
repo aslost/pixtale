@@ -1,6 +1,5 @@
-import { cookies } from "next/headers"
 import { PhotoProvider } from "./provider"
-import { getLoginInfo } from "@/lib/cookie"
+import { getProxyUser } from "@/server/lib/proxy-user"
 import { PHOTO_LIST_PAGE_SIZE } from "@/server/const/global"
 import { photoService } from "@/server/service/photo-service"
 
@@ -10,10 +9,9 @@ interface PhotoLayoutProps {
 
 // 服务端查询照片第一页，并提供给 /photo 页面初始化列表。
 export default async function PhotoLayout({ children }: PhotoLayoutProps) {
-  const cookieStore = await cookies()
-  const { userId } = await getLoginInfo(cookieStore.toString())
+  const proxyUser = await getProxyUser()
 
-  if (!userId) {
+  if (!proxyUser) {
     return null
   }
 
@@ -24,7 +22,7 @@ export default async function PhotoLayout({ children }: PhotoLayoutProps) {
     favorite: null,
     status: null,
     albumId: null,
-  }, userId)
+  }, proxyUser.userId)
 
   return (
     <PhotoProvider initialPhotos={data.list}>

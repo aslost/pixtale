@@ -91,7 +91,17 @@ export function useUserColumns({ onEdit, onToggleStatus, onDelete }: UserColumns
     {
       accessorKey: "type",
       header: t("columns.type"),
-      cell: ({ row }) => row.original.type === UserTypeEnum.ADMIN ? t("admin") : t("user")
+      cell: ({ row }) => {
+        if (row.original.type === UserTypeEnum.ADMIN) {
+          return t("admin")
+        }
+
+        if (row.original.type === UserTypeEnum.DEMO) {
+          return t("demo")
+        }
+
+        return t("user")
+      }
     },
     {
       accessorKey: "usedCapacity",

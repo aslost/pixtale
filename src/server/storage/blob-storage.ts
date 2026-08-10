@@ -44,7 +44,7 @@ class BlobStorageStrategy implements StorageStrategy {
   async get(key: string, _storage: Storage, options?: StorageGetOptions): Promise<StorageObject> {
     this.assertConfigured();
 
-    const res = await get(key, { access: 'public' });
+    const res = await get(key, { access: 'public', useCache: false });
 
     if (!res || res.statusCode !== 200 || !res.stream) {
       throw new BizError(
