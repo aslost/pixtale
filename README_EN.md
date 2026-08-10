@@ -1,29 +1,35 @@
 <p align="center">
-        <img src="https://img.022335.xyz/logo.png" width="96px" />
+    <img src="https://img.022335.xyz/logo.png" width="96px" />
     <h1 align="center">Pixtale</h1>
-    <p align="center"><strong>A masonry-style web photo album built with Next.js</strong></p>
+    <p align="center"><strong>An immersive masonry photo gallery 🎉</strong></p>
     <p align="center"><a href="README.md">简体中文</a> | English</p>
 </p>
+
+## Introduction
+
+Pixtale is an immersive masonry photo gallery built with Next.js. It supports local storage and S3-compatible object storage, and can be deployed with Docker or on Vercel.
 
 ## Preview
 
 - [Live Demo](https://022335.xyz)
+- [Deployment Guide](https://doc.022335.xyz/en/)
 
 ![](https://img.022335.xyz/demo.jpg)
 ![](https://img.022335.xyz/demo1.jpg)
+
 ## Features
 
-- **🖼️ Masonry Gallery:** Browse photos with infinite scrolling, cursor-based pagination, and virtualized rendering.
+- **🖼️ Masonry Gallery:** Infinite scrolling with cursor-based pagination and virtualized rendering for smooth browsing.
 
-- **🌄 Optimized Thumbnails:** Generate thumbnails and high-resolution previews for a smoother experience on slower networks.
+- **🌄 Optimized Thumbnails:** Generates thumbnails and high-resolution previews for a better experience on slower networks.
 
-- **📷 EXIF Metadata:** Parse photo EXIF metadata and arrange photos on a chronological timeline.
+- **📷 EXIF Metadata:** Parses photo EXIF data and sorts photos chronologically.
 
-- **💻 Responsive Design:** Automatically adapts to desktop and most mobile browsers.
+- **💻 Responsive Design:** Adapts automatically to desktop and most mobile browsers.
 
-- **☁️ Unified Storage:** Store photos on the local filesystem or S3-compatible object storage and browse them in one place.
+- **☁️ Flexible Storage:** Store photos locally or on S3-compatible object storage and browse them in one place.
 
-- **👥 Multi-user Support:** Add and manage multiple user accounts.
+- **👥 Multi-user Support:** Create and manage multiple user accounts.
 
 ## Tech Stack
 
@@ -37,37 +43,8 @@
 
 - **UI Components:** [shadcn/ui](https://ui.shadcn.com/)
 
-## Quick Deployment
+## Friend Community
 
-### Docker
-
-Replace ADMIN, PASSWORD, and JWT_SECRET with your own values, then run:
-```bash
-docker run -d \
-  --name pixtale \
-  -p 8082:8082 \
-  -v /home/pixtale/data:/app/data \
-  -e ADMIN=admin \
-  -e PASSWORD=123456 \
-  -e JWT_SECRET=abc \
-  aslost/pixtale:latest
-```
-Then visit http://ip:8082
-
-### Windows
-
-Download `pixtale-win.zip` from [Releases](https://github.com/aslost/pixtale/releases), extract it, configure `.env`, then double-click `start.bat` to start.
-
-## Environment Variables
-
-| Variable     | Required | Default | Description              |
-|--------------|----------|---------|--------------------------|
-| `ADMIN`      | ✅        | None    | Administrator username   |
-| `PASSWORD`   | ✅        | None    | Administrator password   |
-| `JWT_SECRET` | ✅        | None    | Secret used to sign JWTs |
-| `TITLE`      | ❌        | Pixtale | Website title            |
-
-## Friend Links
 [LINUXDO](https://linux.do)
 
 ## License

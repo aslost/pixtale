@@ -1,13 +1,19 @@
 <p align="center">
     <img src="https://img.022335.xyz/logo.png" width="96px" />
     <h1 align="center">Pixtale</h1>
-    <p align="center"><strong>一个瀑布流Web相册，基于Next构建 🎉</strong></p>
+    <p align="center"><strong>一个沉浸式瀑布流相册应用🎉</strong></p>
     <p align="center">简体中文 | <a href="README_EN.md">English</a></p>
 </p>
+
+
+## 前言
+
+Pixtale 是一个基于Next.js构建的沉浸式瀑布流相册，支持本地和S3等方式聚合存储，可部署到Docker和Vercel
 
 ## 项目展示
 
 - [在线演示](https://022335.xyz)
+- [部署教程](https://doc.022335.xyz)
 
 ![](https://img.022335.xyz/demo.jpg)
 ![](https://img.022335.xyz/demo1.jpg)
@@ -39,39 +45,6 @@
 - **数据库：** [SQLite](https://sqlite.org/)
 
 - **UI组件：** [shadcn/ui](https://ui.shadcn.com/)
-
-## 开始使用
-
-#### Docker部署
-
-把 `ADMIN` `PASSWORD` `JWT_SECRET` 改成你自己的，运行
-```yaml
-docker run -d \
-  --name pixtale \
-  -p 8082:8082 \
-  -v /home/pixtale/data:/app/data \
-  -e ADMIN=admin \
-  -e PASSWORD=123456 \
-  -e JWT_SECRET=abc \
-  aslost/pixtale:latest
-```
-
-然后访问 `http://ip:8082`
-
-#### Windos运行
-
-
-在 [Releases](https://github.com/aslost/pixtale/releases) 下载 `pixtale-win.zip`，解压后在 `.env` 配置环境，然后双击 `start.bat` 启动 
-
-## 环境变量
-
-| 变量         | 必填 | 默认值     | 说明    |
-|------------|----|---------|-------|
-| ADMIN      | ✅  | 空       | 管理员账号 |
-| PASSWORD   | ✅  | 空       | 管理员密码 |
-| JWT_SECRET | ✅  | 空       | JWT密钥 |
-| TITLE      | ❌  | Pixtale | 网站标题  |
-
 
 ## 友情社区
 [LINUXDO](https://linux.do)
