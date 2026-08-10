@@ -74,3 +74,9 @@ app.post('/photo/clear', async (c: Context) => {
   await photoService.clear(getUserId());
   return c.json(result.ok());
 })
+
+// 定时清理超过保留天数的回收站照片，供 Vercel Cron 调用。
+app.get('/photo/clearExpired', async (c: Context) => {
+  await photoService.clearExpired();
+  return c.json(result.ok());
+})

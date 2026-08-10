@@ -73,6 +73,18 @@ async function security(c: Context, next: Next) {
     return next();
   }
 
+  // 定时清理接口用 CRON_SECRET 鉴权，不走登录会话。
+  if (path === '/photo/clearExpired') {
+    const secret = process.env.CRON_SECRET?.trim();
+    const authHeader = c.req.header('authorization');
+
+    if (!secret || authHeader !== `Bearer ${secret}`) {
+      throw new BizError('auth.failed', 401);
+    }
+
+    return next();
+  }
+
   const { userId, uuid } = await getLoginInfo(c.req.header('cookie') ?? null);
 
   if (!userId || !uuid) {
