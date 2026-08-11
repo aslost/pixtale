@@ -8,7 +8,7 @@ const nextConfig: NextConfig = {
   env: {
     TITLE: process.env.TITLE || "Pixtale",
   },
-  serverExternalPackages: ['better-sqlite3'],
+  serverExternalPackages: ['better-sqlite3', 'exifr'],
   // Vercel 不用 standalone；Docker 自建部署才需要。
   output: process.env.VERCEL ? undefined : 'standalone',
   // standalone 需要把平台对应的原生依赖资源一并打进产物。

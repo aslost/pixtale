@@ -32,8 +32,8 @@ interface RootLayoutProps {
 // 最简根布局：html/body、字体，以及主题 Provider。
 export default async function RootLayout({ children }: RootLayoutProps) {
   const cookieStore = await cookies()
-  // 仅显式 dark 时启用暗色，其余默认浅色。
-  const defaultTheme: Theme = cookieStore.get(THEME_COOKIE_NAME)?.value === "dark" ? "dark" : "light"
+  // 仅显式 light 时启用浅色，其余默认暗色。
+  const defaultTheme: Theme = cookieStore.get(THEME_COOKIE_NAME)?.value === "light" ? "light" : "dark"
   const locale = await getLocale()
 
   return (
