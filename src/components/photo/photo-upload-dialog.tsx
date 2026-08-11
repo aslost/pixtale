@@ -338,8 +338,6 @@ export function PhotoUploadDialog() {
       const formData = new FormData()
       formData.set("storageId", currentStorageId)
       formData.set("lastModified", String(item.file.lastModified))
-      // 本地相对 UTC 的分钟数（东八区 480），后端在无 Exif 偏移时用于换算拍摄时间。
-      formData.set("tzOffset", String(-new Date().getTimezoneOffset()))
       if (item.albumId) {
         formData.set("albumId", item.albumId)
       }

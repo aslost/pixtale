@@ -61,19 +61,51 @@ function parseExifDateParts(value: unknown) {
   return { year, month, day, hour, minute, second }
 }
 
-// 把拍摄时间转成 ISO UTC；优先 Exif 偏移，其次前端本地偏移。
-function getTakenTime(tags: Record<string, unknown>, clientOffsetMin: number) {
+// 有 Exif 偏移则转 UTC（带 Z）；无偏移则固定墙上时间（不带 Z）。
+function getTakenTime(tags: Record<string, unknown>) {
   const parts = parseExifDateParts(tags.DateTimeOriginal ?? tags.CreateDate)
   if (!parts) {
     return null
   }
 
+  const pad = (n: number) => String(n).padStart(2, '0')
+  const wallClock = `${parts.year}-${pad(parts.month)}-${pad(parts.day)}T${pad(parts.hour)}:${pad(parts.minute)}:${pad(parts.second)}`
+
   const offsetMin = parseOffsetMinutes(
     tags.OffsetTimeOriginal ?? tags.OffsetTimeDigitized ?? tags.OffsetTime,
-  ) ?? clientOffsetMin
+  )
+  if (offsetMin == null) {
+    return wallClock
+  }
+
   const { year, month, day, hour, minute, second } = parts
   const utcMs = Date.UTC(year, month - 1, day, hour, minute, second) - offsetMin * 60_000
   return new Date(utcMs).toISOString()
+}
+
+const colorSpaceLabels: Record<number, string> = {
+  1: 'sRGB',
+  2: 'Adobe RGB',
+  0xfffd: 'Wide Gamut RGB',
+  0xfffe: 'ICC Profile',
+  0xffff: 'Uncalibrated',
+}
+
+// 把 ColorSpace 枚举转成英语字符串，便于前端直接显示。
+function formatColorSpaceValue(value: unknown) {
+  if (typeof value === 'number') {
+    return colorSpaceLabels[value] ?? String(value)
+  }
+
+  if (typeof value === 'string' && value.trim()) {
+    const num = Number(value)
+    if (!Number.isNaN(num) && colorSpaceLabels[num]) {
+      return colorSpaceLabels[num]
+    }
+    return value
+  }
+
+  return null
 }
 
 // 把指定字段转成 JSON 字符串。
@@ -81,20 +113,30 @@ function buildExifJson(tags: Record<string, unknown>) {
   const data: Record<string, unknown> = {}
   for (const key of exifPickKeys) {
     const value = tags[key]
-    if (value !== undefined && value !== null && value !== '') {
-      data[key] = value instanceof Date ? value.toISOString() : value
+    if (value === undefined || value === null || value === '') {
+      continue
     }
+
+    if (key === 'ColorSpace') {
+      const colorSpace = formatColorSpaceValue(value)
+      if (colorSpace) {
+        data[key] = colorSpace
+      }
+      continue
+    }
+
+    data[key] = value instanceof Date ? value.toISOString() : value
   }
   return Object.keys(data).length ? JSON.stringify(data) : null
 }
 
 // 从原图 Exif 读取拍摄时间、经纬度与 exif JSON 字符串。
-// clientOffsetMin：前端本地相对 UTC 的分钟数（如东八区为 480），无 Exif 偏移时使用。
-export async function readPhotoExifFromBuffer(input: Uint8Array, clientOffsetMin: number) {
+export async function readPhotoExifFromBuffer(input: Uint8Array) {
   try {
+    // 不用全局 pick：pick 会裁掉/中断 ICC 段，导致 desc / ProfileDescription 读不到。
     const tags = await exifr.parse(input, {
-      pick: [...exifPickKeys, 'GPSAltitude', 'GPSAltitudeRef'],
       gps: true,
+      icc: true,
     }) as Record<string, unknown> | undefined
 
     if (!tags) {
@@ -106,7 +148,7 @@ export async function readPhotoExifFromBuffer(input: Uint8Array, clientOffsetMin
       : null
 
     return {
-      takenTime: getTakenTime(tags, clientOffsetMin),
+      takenTime: getTakenTime(tags),
       latitude: typeof tags.latitude === 'number' ? tags.latitude : null,
       longitude: typeof tags.longitude === 'number' ? tags.longitude : null,
       altitude,
