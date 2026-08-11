@@ -5,7 +5,7 @@ import { type Storage } from '@/server/entity/storage';
 interface StorageVo extends Storage {
   photoTotal: number;
   usedCapacity: number;
-  // 未绑定等导致当前环境不可用（如 Blob 无 BLOB_STORE_ID）。
+  // 未绑定等导致当前环境不可用（如 Blob 无 BLOB_READ_WRITE_TOKEN）。
   unavailable?: boolean;
 }
 

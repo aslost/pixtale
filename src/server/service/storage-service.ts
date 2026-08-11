@@ -205,17 +205,11 @@ const storageService = {
     await this.refreshStorageCache();
   },
 
-  // 删除指定存储配置，并把全部关联照片的存储标记置空。
+  // 删除指定存储配置。
   async delete(storageId: string): Promise<void> {
     if (!storageId) {
       throw new BizError('storage.selectRequired');
     }
-
-    await orm.update(photoTab)
-      .set({
-        storageId: 'none'
-      })
-      .where(eq(photoTab.storageId, storageId));
 
     await orm.delete(storageTab)
       .where(eq(storageTab.storageId, storageId));
