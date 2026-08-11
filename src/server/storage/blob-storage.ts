@@ -15,17 +15,8 @@ import BizError from '@/server/error/biz-error';
 
 class BlobStorageStrategy implements StorageStrategy {
 
-  // 确认已绑定 Blob，否则抛错。
-  private assertConfigured() {
-    if (!isBlobConfigured()) {
-      throw new BizError('blob.notConfigured');
-    }
-  }
-
   // 保存多个文件到 Vercel Blob。
   async put(files: StorageUploadObject[], _storage: Storage): Promise<void> {
-    this.assertConfigured();
-
     for (const file of files) {
       const cacheControl = file.metadata?.find(([name]) => name === 'Cache-Control')?.[1];
       const cacheControlMaxAge = cacheControl?.match(/max-age=(\d+)/i)?.[1];
@@ -42,8 +33,6 @@ class BlobStorageStrategy implements StorageStrategy {
 
   // 从 Vercel Blob 读取文件；传 as 时返回 Uint8Array，否则返回流。
   async get(key: string, _storage: Storage, options?: StorageGetOptions): Promise<StorageObject> {
-    this.assertConfigured();
-
     const res = await get(key, { access: 'public', useCache: false });
 
     if (!res || res.statusCode !== 200 || !res.stream) {
@@ -72,9 +61,11 @@ class BlobStorageStrategy implements StorageStrategy {
     };
   }
 
-  // 从 Vercel Blob 删除一个或多个文件。
+  // 从 Vercel Blob 删除一个或多个文件；未配置时直接跳过。
   async delete(key: string | string[], _storage: Storage): Promise<void> {
-    this.assertConfigured();
+    if (!isBlobConfigured()) {
+      return;
+    }
 
     const keys = Array.isArray(key) ? key : [key];
 
@@ -87,8 +78,6 @@ class BlobStorageStrategy implements StorageStrategy {
 
   // 用 OIDC 签发预签名 PUT URL，供前端直传。
   async createUrl(key: string, _storage: Storage, contentType?: string): Promise<string> {
-    this.assertConfigured();
-
     const allowedContentTypes = contentType ? [contentType, 'image/*'] : ['image/*'];
     const validUntil = Date.now() + 15 * 60 * 1000;
 
