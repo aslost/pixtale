@@ -22,12 +22,30 @@ Invoke-Robocopy (Join-Path $Root ".next\standalone") $Out $true
 Invoke-Robocopy (Join-Path $Root ".next\static") (Join-Path $Out ".next\static")
 Invoke-Robocopy (Join-Path $Root "public") (Join-Path $Out "public")
 Invoke-Robocopy (Join-Path $Root "node_modules\@img\sharp-win32-x64") (Join-Path $Out "node_modules\@img\sharp-win32-x64")
-Copy-Item (Join-Path $Root "scripts\start.bat") (Join-Path $Out "start.bat") -Force
 
 $NodeExe = Join-Path $Base "node.exe"
 if (-not (Test-Path $NodeExe)) {
   throw "Missing $NodeExe. Place node.exe in $Base first."
 }
 Copy-Item $NodeExe (Join-Path $Out "node.exe") -Force
+
+# 用本机 csc 编译启动器，图标取自 public/logo.ico。
+function Invoke-CompileLauncher([string]$DestExe) {
+  $csc = Join-Path $env:WINDIR "Microsoft.NET\Framework64\v4.0.30319\csc.exe"
+  if (-not (Test-Path $csc)) {
+    throw "Missing $csc"
+  }
+  $ico = Join-Path $Root "public\logo.ico"
+  if (-not (Test-Path $ico)) {
+    throw "Missing $ico"
+  }
+  $src = Join-Path $Root "scripts\launcher.cs"
+  & $csc /nologo /optimize /target:exe /win32icon:$ico /out:$DestExe $src
+  if ($LASTEXITCODE -ne 0) {
+    throw "csc failed ($LASTEXITCODE)"
+  }
+}
+
+Invoke-CompileLauncher (Join-Path $Out "Pixtale.exe")
 
 Write-Host "Bundle complete: $Out"
