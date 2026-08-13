@@ -10,19 +10,19 @@ function buildPhotoKey(userId: string, fileName: string): string {
   return `photos/${userId}/${fileName}`;
 }
 
-// 按 checksum 前四位分片，文件名用 photoId，避免相同内容 key 冲突。
-function buildChecksumImageKey(prefix: 'previews' | 'thumbnails', checksum: string, photoId: string, ext: string): string {
-  return `${prefix}/${checksum.slice(0, 2)}/${checksum.slice(2, 4)}/${photoId}${ext}`;
+// 按 userId 归档，再用 photoId 前四位分两级目录。
+function buildDerivedImageKey(prefix: 'previews' | 'thumbnails', userId: string, photoId: string, ext: string): string {
+  return `${prefix}/${userId}/${photoId.slice(0, 2)}/${photoId.slice(2, 4)}/${photoId}${ext}`;
 }
 
 // 生成高清图存储路径。
-function buildPreviewKey(checksum: string, photoId: string): string {
-  return buildChecksumImageKey('previews', checksum, photoId, '.jpg');
+function buildPreviewKey(userId: string, photoId: string): string {
+  return buildDerivedImageKey('previews', userId, photoId, '.jpg');
 }
 
 // 生成缩略图存储路径。
-function buildThumbnailKey(checksum: string, photoId: string): string {
-  return buildChecksumImageKey('thumbnails', checksum, photoId, '.webp');
+function buildThumbnailKey(userId: string, photoId: string): string {
+  return buildDerivedImageKey('thumbnails', userId, photoId, '.webp');
 }
 
 export { buildPhotoKey, buildPreviewKey, buildThumbnailKey, formatPhotoDate };

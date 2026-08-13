@@ -282,8 +282,8 @@ const photoService = {
     const takenTime = meta.takenTime ?? new Date(lastModified > 0 ? lastModified : Date.now()).toISOString();
     const key = uploadedKey || await this.resolvePhotoKey(userId, name);
     const photoId = createId();
-    const preview = buildPreviewKey(checksum, photoId);
-    const thumbnail = buildThumbnailKey(checksum, photoId);
+    const preview = buildPreviewKey(userId, photoId);
+    const thumbnail = buildThumbnailKey(userId, photoId);
 
     const cacheMetadata = [['Cache-Control', 'private, max-age=604800']];
     const keyMetadata = [
