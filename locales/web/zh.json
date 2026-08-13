@@ -15,6 +15,7 @@
   "photos.upload.clear": "清除",
   "photos.upload.pause": "暂停",
   "photos.upload.start": "开始",
+  "photos.upload.resume": "继续",
   "photos.upload.concurrentUploads": "并发上传",
   "photos.upload.retryFailedUploads": "失败重试",
   "photos.info.basicInformation": "基本信息",

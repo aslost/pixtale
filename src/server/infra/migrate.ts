@@ -102,7 +102,8 @@ const createTableSqlList = [
         status INTEGER DEFAULT 0
     )`,
   `INSERT OR IGNORE INTO storage (storage_id, name, type, sort, status)
-        VALUES ('local', '本地存储', 1, 0, 0)`,
+        VALUES ('local', 'Local', 1, 0, 0)`,
+  `UPDATE storage SET name = 'Local' WHERE storage_id = 'local' AND name = '本地存储'`,
 
   `INSERT OR IGNORE INTO storage (storage_id, name, type, sort, status)
         VALUES ('blob', 'Blob', 3, 0, 0)`,

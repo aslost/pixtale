@@ -172,7 +172,7 @@ export function PhotoUploadDialog() {
   const abortMapRef = useRef<Map<string, () => void>>(new Map()) // 保存每张照片对应的停止上传方法。
   const pausedRef = useRef(false) // 标记是否已暂停，防止 abort 收尾时重新启动上传。
   const uploadStorageIdRef = useRef<string | null>(null) // 开始后锁定的存储配置 id。
-  const [uploading, setUploading] = useState(false) // 标记当前是否正在上传，用于切换开始/暂停按钮。
+  const [uploading, setUploading] = useState(false) // 标记当前是否正在上传，用于切换上传/暂停/继续按钮。
   const [storageId, setStorageId] = useState<string | null>(null) // 当前手动选择的存储配置 id。
   const [, setPreviewTick] = useState(0) // 预览列表变更时递增，用于触发界面刷新。
   const storages = useStorageStore((state) => state.storages) // 全局可选存储配置列表。
@@ -204,6 +204,7 @@ export function PhotoUploadDialog() {
     previewsRef.current.forEach((preview) => URL.revokeObjectURL(preview.cover))
     uploadQueueRef.current = []
     uploadingRef.current = false
+    pausedRef.current = false
     setUploading(false)
     setPreviews([])
   }
@@ -590,7 +591,7 @@ export function PhotoUploadDialog() {
               </Button>
             )}
             <Button type="button" onClick={handleUploadAction}>
-              {uploading ? t("pause") : t("start")}
+              {uploading ? t("pause") : pausedRef.current ? t("resume") : t("start")}
             </Button>
           </div>
         </DialogFooter>
