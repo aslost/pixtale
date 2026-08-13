@@ -1,4 +1,5 @@
 import { Hono } from 'hono';
+import { compress } from 'hono/compress';
 import { contextStorage } from 'hono/context-storage';
 import result from '../model/result';
 import { cors } from 'hono/cors';
@@ -11,6 +12,8 @@ import type { HonoEnv } from './type';
 
 const app = new Hono<HonoEnv>().basePath('/api');
 
+// 按 Accept-Encoding 压缩 JSON 等文本响应，默认超过 1KB 才启用 gzip。
+app.use('*', compress());
 app.use('*', cors());
 app.use('*', contextStorage());
 app.use('*', i18nMiddleware);
