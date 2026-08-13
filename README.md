@@ -1,58 +1,52 @@
 <p align="center">
     <img src="https://img.022335.xyz/logo.png" width="96px" />
     <h1 align="center">Pixtale</h1>
-    <p align="center"><strong>一个沉浸式瀑布流相册应用🎉</strong></p>
-    <p align="center">简体中文 | <a href="README_EN.md">English</a></p>
+    <p align="center"><strong>An immersive masonry photo gallery 🎉</strong></p>
+    <p align="center">English | <a href="README_ZH.md">简体中文</a></p>
 </p>
 
+## Introduction
 
-## 前言
+Pixtale is an immersive masonry photo gallery built with Next.js for storing personal photos privately. It supports local storage and S3-compatible object storage, and can be deployed with Docker or on Vercel.
 
-Pixtale 是一个基于Next.js构建的沉浸式瀑布流相册，支持本地和S3等方式聚合存储，可部署到Docker和Vercel
+## Preview
 
-## 项目展示
-
-- [在线演示](https://022335.xyz)
-- [部署教程](https://doc.022335.xyz)
+- [Live Demo](https://022335.xyz)
+- [Deployment Guide](https://doc.022335.xyz)
 
 ![](https://img.022335.xyz/demo.jpg)
 ![](https://img.022335.xyz/demo1.jpg)
 
+## Features
 
-## 功能介绍
+- **🖼️ Masonry Gallery:** Infinite scroll with cursor pagination and virtualized rendering.
 
-- **🖼️ 瀑布流列表**：瀑布流无限滚动，采用游标分页+虚拟滚动优化性能
+- **🌄 Optimized Thumbnails:** Generates thumbnails and high-res previews for slower networks.
 
-- **🌄 缩略图优化**：生成缩略图和高清图，优化在弱网环境下的体验
+- **📷 EXIF Metadata:** Parses photo EXIF data and sorts photos chronologically.
 
-- **📷 EXIF解析**：解析记录照片EXIF信息，按时间线排列照片
+- **💻 Responsive Design:** Adapts automatically to desktop and most mobile browsers.
 
-- **💻 响应式设计**：响应式布局自动适配PC和大部分手机端浏览器
+- **☁️ Flexible Storage:** Store photos locally or on S3-compatible object storage and browse them in one place.
 
-- **☁️ 聚合存储**：支持本地文件和S3协议对象存储，聚合式存储图片
+- **👥 Multi-user Support:** Create and manage multiple user accounts.
 
-- **👥 多用户**：支持添加不同用户，提供多用户使用支持与管理
+## Tech Stack
 
+- **Full-stack Framework:** [Next.js](https://nextjs.org/)
 
-## 技术栈
+- **Web Framework:** [Hono](https://hono.dev/)
 
-- **全栈框架：** [Next.js](https://nextjs.org/)
+- **ORM:** [Drizzle](https://orm.drizzle.team/)
 
-- **Web框架：** [Hono](https://hono.dev/)
+- **Database:** [SQLite](https://sqlite.org/)
 
-- **ORM：** [Drizzle](https://orm.drizzle.team/)
+- **UI Components:** [shadcn/ui](https://ui.shadcn.com/)
 
-- **数据库：** [SQLite](https://sqlite.org/)
+## Friend Links 
 
-- **UI组件：** [shadcn/ui](https://ui.shadcn.com/)
-
-## 友情社区
 [LINUXDO](https://linux.do)
 
-## 许可证
+## License
 
-`Pixtale` 是基于 [AGPL-3.0](LICENSE) 许可证的开源软件
-
-
-
-
+`Pixtale` is open-source software licensed under the [AGPL-3.0](LICENSE).
