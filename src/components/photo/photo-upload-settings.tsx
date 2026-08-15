@@ -18,9 +18,9 @@ const defaultSettings: PhotoUploadSettingsValue = {
   retryOnFail: false,
 }
 
-// 把并发数限制在 1 到 5 之间。
+// 把并发数限制在 1 到 10 之间。
 function clampConcurrency(value: number) {
-  return Math.min(5, Math.max(1, Math.round(value)))
+  return Math.min(10, Math.max(1, Math.round(value)))
 }
 
 // 从本地存储读取照片上传设置，读取失败时返回默认值。
@@ -77,7 +77,7 @@ export function PhotoUploadSettings({ onChange }: { onChange?: () => void }) {
         </div>
         <Slider
           min={1}
-          max={5}
+          max={10}
           step={1}
           value={[settings.concurrency]}
           onValueChange={(value) => updateSettings({ concurrency: value[0] })}
